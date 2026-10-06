@@ -1,0 +1,41 @@
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  <% @itineraries.each do |itinerary| %>
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <!-- Main Title: Start to End -->
+          <h5 class="card-title text-primary">
+            <%= itinerary.start_destination %>
+            <i class="bi bi-arrow-right mx-1"></i> <!-- Optional Bootstrap Icon -->
+            <%= itinerary.end_destination.presence || "Round Trip" %>
+          </h5>
+
+          <!-- Subtitle: Distance and Bike Type -->
+          <h6 class="card-subtitle mb-3 text-muted">
+            <%= itinerary.distance %> miles • <%= itinerary.bike_type.capitalize %> Bike
+          </h6>
+
+          <!-- Details List -->
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <strong>Group Size:</strong> <span><%= itinerary.group_size %></span>
+            </li>
+            <li class="list-group-item px-0 d-flex justify-content-between">
+              <strong>Kids Friendly:</strong> <span><%= itinerary.kids.capitalize %></span>
+            </li>
+          </ul>
+
+          <!-- System Prompt (Truncated so it doesn't break the card height) -->
+          <p class="card-text text-secondary small text-truncate" title="<%= itinerary.system_prompt %>">
+            "<%= itinerary.system_prompt %>"
+          </p>
+        </div>
+
+        <!-- Action Button -->
+        <div class="card-footer bg-white border-top-0 pt-0">
+          <%= link_to "View Details", itinerary_path(itinerary), class: "btn btn-outline-primary btn-sm w-100" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
