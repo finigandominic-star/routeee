@@ -1,5 +1,5 @@
 class ItinerariesController < ApplicationController
-  before_action :set_list, only: [:show, :destroy]
+  before_action :set_itinerary, only: [:show, :destroy]
   # index displaying all the itineraries
   def index
     @itineraries = Itinerary.all
@@ -13,7 +13,7 @@ class ItinerariesController < ApplicationController
 
   private
 
-  def set_itineraries
+  def set_itinerary
     @itinerary = Itinerary.find(params[:id])
   end
 
