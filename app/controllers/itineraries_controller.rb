@@ -14,10 +14,10 @@ class ItinerariesController < ApplicationController
   private
 
   def set_list
-    @@ititnerary = Itinerary.find(params[:id])
+    @@itinerary = Itinerary.find(params[:id])
   end
 
-  def itienrary_params
+  def itinerary_params
     params.require(:itinerary).permit(:name)
   end
 
