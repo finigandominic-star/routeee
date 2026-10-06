@@ -39,20 +39,23 @@ itinerary_5 = Itinerary.create!(bike_type: "e-bike", distance: 20, start_destina
 puts "Created itinerary #5"
 
 puts "Creating chats..."
-chat_1 = Chat.create!(user: sarah, itinerary: itinerary_3)
-chat_2 = Chat.create!(user: mark, itinerary: itinerary_4)
-chat_3 = Chat.create!(user: emily, itinerary: itinerary_5)
-puts "Created 3 chats."
+chat_1 = Chat.create!(user: sarah, itinerary: itinerary_3, title: "Family Route to Windsor")
+chat_2 = Chat.create!(user: mark, itinerary: itinerary_4, title: "Box Hill Gravel Challenge")
+chat_3 = Chat.create!(user: emily, itinerary: itinerary_5, title: "Oxford E-Bike Cruise")
+# New chats for itineraries 1 and 2
+chat_4 = Chat.create!(user: toni, itinerary: itinerary_1, title: "Baker Street Urban MTB")
+chat_5 = Chat.create!(user: john, itinerary: itinerary_2, title: "Pangbourne Quick Loop")
+puts "Created 5 chats."
 
 puts "Creating messages..."
 
-# Chat 1 Messages (4 messages)
+# Chat 1 Messages
 Message.create!(chat: chat_1, role: "user", content: "I'm looking for a safe route for my family from Reading to Windsor.")
 Message.create!(chat: chat_1, role: "assistant", content: "I can help with that! A hybrid bike is perfect. Do you want to stick to the Thames Path?")
 Message.create!(chat: chat_1, role: "user", content: "Yes, the Thames Path sounds lovely. Are there any good pub stops?")
 Message.create!(chat: chat_1, role: "assistant", content: "Absolutely. I've plotted a 15-mile route with a recommended stop at The George in Wargrave.")
 
-# Chat 2 Messages (6 messages)
+# Chat 2 Messages
 Message.create!(chat: chat_2, role: "user", content: "I want a tough 40-mile gravel ride starting at Richmond Park.")
 Message.create!(chat: chat_2, role: "assistant", content: "Great! Heading out to Box Hill will give you some excellent climbs. Ready for the route?")
 Message.create!(chat: chat_2, role: "user", content: "Yes, but keep it mostly off-road if possible.")
@@ -60,9 +63,18 @@ Message.create!(chat: chat_2, role: "assistant", content: "Understood. I am rout
 Message.create!(chat: chat_2, role: "user", content: "Perfect, thanks.")
 Message.create!(chat: chat_2, role: "assistant", content: "Your route is saved. Have a great ride!")
 
-# Chat 3 Messages (3 messages)
+# Chat 3 Messages
 Message.create!(chat: chat_3, role: "user", content: "My partner and I want an easy 20-mile e-bike ride to Blenheim Palace.")
 Message.create!(chat: chat_3, role: "assistant", content: "Oxford to Blenheim Palace is a beautiful ride. I recommend the route through Woodstock.")
 Message.create!(chat: chat_3, role: "user", content: "Sounds great, send me the map.")
+
+# Chat 4 Messages (For Itinerary 1)
+Message.create!(chat: chat_4, role: "user", content: "Can you map a 7-mile mountain bike loop starting and ending at 10 Baker Street?")
+Message.create!(chat: chat_4, role: "assistant", content: "An urban mountain bike ride! I'll route you through nearby parks like Regent's Park and Primrose Hill for some varied terrain.")
+
+# Chat 5 Messages (For Itinerary 2)
+Message.create!(chat: chat_5, role: "user", content: "I just need a quick 3-mile road ride from Pangbourne with my kids.")
+Message.create!(chat: chat_5, role: "assistant", content: "Since you're with kids, I'll stick to very quiet, low-traffic residential roads around the village. Would you like a map?")
+Message.create!(chat: chat_5, role: "user", content: "Yes please.")
 
 puts "Database seeded successfully!"
