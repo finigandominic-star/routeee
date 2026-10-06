@@ -1,0 +1,30 @@
+<div class="container m-5">
+  <h1><%= @itinerary.name %></h1>
+
+  <div class="row">
+    <% @itineraries.each do |itinerary| %>
+    <div class="col-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><%= itinerary.name %></h5>
+          <ul>
+            <%# bike_type %>
+            <li></li>
+            <%# distance %>
+            <li></li>
+            <%# start_destination %>
+            <li></li>
+            <%# end_destination %>
+            <li></li>
+            <%# group_size %>
+            <li></li>
+            <%# kids? %>
+            <li></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <% end %>
+  </div>
+  <%= link_to "Back to itineraries", root_path, class: "btn btn-primary mt-3" %>
+</div>
