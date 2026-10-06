@@ -13,8 +13,8 @@ class ItinerariesController < ApplicationController
 
   private
 
-  def set_list
-    @@itinerary = Itinerary.find(params[:id])
+  def set_itineraries
+    @itinerary = Itinerary.find(params[:id])
   end
 
   def itinerary_params
