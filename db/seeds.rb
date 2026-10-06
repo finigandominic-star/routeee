@@ -47,22 +47,22 @@ puts "Created 3 chats."
 puts "Creating messages..."
 
 # Chat 1 Messages (4 messages)
-Message.create!(chat: chat_1, role: "user", text: "I'm looking for a safe route for my family from Reading to Windsor.")
-Message.create!(chat: chat_1, role: "assistant", text: "I can help with that! A hybrid bike is perfect. Do you want to stick to the Thames Path?")
-Message.create!(chat: chat_1, role: "user", text: "Yes, the Thames Path sounds lovely. Are there any good pub stops?")
-Message.create!(chat: chat_1, role: "assistant", text: "Absolutely. I've plotted a 15-mile route with a recommended stop at The George in Wargrave.")
+Message.create!(chat: chat_1, role: "user", content: "I'm looking for a safe route for my family from Reading to Windsor.")
+Message.create!(chat: chat_1, role: "assistant", content: "I can help with that! A hybrid bike is perfect. Do you want to stick to the Thames Path?")
+Message.create!(chat: chat_1, role: "user", content: "Yes, the Thames Path sounds lovely. Are there any good pub stops?")
+Message.create!(chat: chat_1, role: "assistant", content: "Absolutely. I've plotted a 15-mile route with a recommended stop at The George in Wargrave.")
 
 # Chat 2 Messages (6 messages)
-Message.create!(chat: chat_2, role: "user", text: "I want a tough 40-mile gravel ride starting at Richmond Park.")
-Message.create!(chat: chat_2, role: "assistant", text: "Great! Heading out to Box Hill will give you some excellent climbs. Ready for the route?")
-Message.create!(chat: chat_2, role: "user", text: "Yes, but keep it mostly off-road if possible.")
-Message.create!(chat: chat_2, role: "assistant", text: "Understood. I am routing you through the Surrey Hills AONB via bridleways.")
-Message.create!(chat: chat_2, role: "user", text: "Perfect, thanks.")
-Message.create!(chat: chat_2, role: "assistant", text: "Your route is saved. Have a great ride!")
+Message.create!(chat: chat_2, role: "user", content: "I want a tough 40-mile gravel ride starting at Richmond Park.")
+Message.create!(chat: chat_2, role: "assistant", content: "Great! Heading out to Box Hill will give you some excellent climbs. Ready for the route?")
+Message.create!(chat: chat_2, role: "user", content: "Yes, but keep it mostly off-road if possible.")
+Message.create!(chat: chat_2, role: "assistant", content: "Understood. I am routing you through the Surrey Hills AONB via bridleways.")
+Message.create!(chat: chat_2, role: "user", content: "Perfect, thanks.")
+Message.create!(chat: chat_2, role: "assistant", content: "Your route is saved. Have a great ride!")
 
 # Chat 3 Messages (3 messages)
-Message.create!(chat: chat_3, role: "user", text: "My partner and I want an easy 20-mile e-bike ride to Blenheim Palace.")
-Message.create!(chat: chat_3, role: "assistant", text: "Oxford to Blenheim Palace is a beautiful ride. I recommend the route through Woodstock.")
-Message.create!(chat: chat_3, role: "user", text: "Sounds great, send me the map.")
+Message.create!(chat: chat_3, role: "user", content: "My partner and I want an easy 20-mile e-bike ride to Blenheim Palace.")
+Message.create!(chat: chat_3, role: "assistant", content: "Oxford to Blenheim Palace is a beautiful ride. I recommend the route through Woodstock.")
+Message.create!(chat: chat_3, role: "user", content: "Sounds great, send me the map.")
 
 puts "Database seeded successfully!"
