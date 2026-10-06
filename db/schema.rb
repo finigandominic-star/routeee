@@ -10,9 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_161744) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_094912) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "chats", force: :cascade do |t|
+    t.string "title"
+    t.bigint "user_id", null: false
+    t.bigint "itinerary_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["itinerary_id"], name: "index_chats_on_itinerary_id"
+    t.index ["user_id"], name: "index_chats_on_user_id"
+  end
+
+  create_table "itineraries", force: :cascade do |t|
+    t.string "bike_type"
+    t.integer "distance"
+    t.string "start_destination"
+    t.string "end_destination"
+    t.integer "group_size"
+    t.string "kids"
+    t.text "system_prompt"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.string "role"
+    t.string "text"
+    t.bigint "chat_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -25,4 +56,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_161744) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "chats", "itineraries"
+  add_foreign_key "chats", "users"
+  add_foreign_key "messages", "chats"
 end
