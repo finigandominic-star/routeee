@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   devise_for :users
   root to: "pages#home"
-  resources :itineraries
+  resources :itineraries do
+    resources :chats, only: [:create, :index, :destroy, :new]
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
