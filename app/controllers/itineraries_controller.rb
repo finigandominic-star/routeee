@@ -13,12 +13,13 @@ class ItinerariesController < ApplicationController
 
   private
 
-  def set_itinerary
-    @itinerary = Itinerary.find(params[:id])
+   def itinerary_params
+    params.require(:itinerary).permit(:name)
   end
 
-  def itinerary_params
-    params.require(:itinerary).permit(:name)
+  def set_itinerary
+    # Grabs the ID from the URL (e.g., /itineraries/1) and finds it in the database
+    @itinerary = Itinerary.find(params[:id])
   end
 
 end
