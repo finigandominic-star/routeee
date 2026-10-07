@@ -1,5 +1,5 @@
 class ItinerariesController < ApplicationController
-  before_action :set_itinerary, only: [:show, :destroy]
+  before_action :set_itinerary, only: [:show, :edit, :update, :destroy]
   # index displaying all the itineraries
   def index
     @itineraries = Itinerary.all
@@ -8,6 +8,12 @@ class ItinerariesController < ApplicationController
    # the page showing one itinerary by id
   def show
     @itinerary = Itinerary.find(params[:id])
+  end
+
+
+  def destroy
+    @itinerary.destroy
+    redirect_to itineraries_path, status: :see_other, notice: "Itinerary deleted."
   end
 
 
