@@ -34,6 +34,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_164634) do
     t.text "system_prompt"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name"
   end
 
   create_table "messages", force: :cascade do |t|
