@@ -8,6 +8,7 @@ class ItinerariesController < ApplicationController
    # the page showing one itinerary by id
   def show
     @itinerary = Itinerary.find(params[:id])
+    @chats = @itinerary.chats.where(user: current_user)
   end
 
 

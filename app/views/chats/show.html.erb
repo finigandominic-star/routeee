@@ -1,0 +1,10 @@
+<%= link_to "← #{@chat.itinerary.name}", itinerary_path(@chat.itinerary) %>
+
+<h1 id="chat_title"><%= @chat.title %></h1>
+
+<div id="new_message_container">
+  <%= simple_form_for [@chat, @message] do |f| %>
+    <%= f.input :content, label: "Ask a question", required: true, placeholder: "How should I get started with the bike trip?" %>
+    <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary' %>
+  <% end %>
+</div>
