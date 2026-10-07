@@ -21,13 +21,15 @@
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%# addition: allow all media %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload", media: "all" %>
+    <!-- Add Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
     <p class="notice"><%= notice %></p>
     <p class="alert"><%= alert %></p>
-    
+
     <!-- navbar with user login -->
     <%= link_to "Skip to main content", "#main-content", class: "visually-hidden-focusable" %>
     <header>

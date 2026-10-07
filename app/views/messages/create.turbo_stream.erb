@@ -1,0 +1,55 @@
+<%# app/views/messages/create.turbo_stream.erb %>
+
+<%# 1. Clear the input form %>
+<%= turbo_stream.replace "new_message_container" do %>
+  <div id="new_message_container">
+    <%= simple_form_for [@chat, Message.new] do |f| %>
+      <%= f.input :content, label: false, required: true, placeholder: "Type your reply..." %>
+      <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary' %>
+    <% end %>
+  </div>
+<% end %>
+
+<%# 2. Append the user message %>
+<%= turbo_stream.append "messages" do %>
+  <div class="d-flex justify-content-end mb-2">
+    <div class="bg-primary text-white px-3 pb-0 pt-3 rounded-pill">
+      <%= simple_format(@message.content) %>
+    </div>
+  </div>
+<% end %>
+
+<%# 3. Append the assistant message %>
+<%= turbo_stream.append "messages" do %>
+  <div class="d-flex justify-content-start mb-5">
+    <div class="bg-light px-3 pb-0 pt-3 rounded">
+      <%= simple_format(@assistant_message.content) %>
+    </div>
+  </div>
+<% end %>
+
+<!-- Update the Itinerary Details AND the Main Map instantly! -->
+<% if @geojson.present? %>
+  <%= turbo_stream.replace "itinerary-details" do %>
+    <div id="itinerary-details">
+      <ul class="list-unstyled mt-3">
+        <li class="mb-2"><strong>Bike Type:</strong> <%= @chat.itinerary.bike_type&.gsub('cycling-', '')&.capitalize %></li>
+        <li class="mb-2"><strong>Distance:</strong> <%= @chat.itinerary.distance %> miles</li>
+        <li class="mb-2"><strong>Start:</strong> <%= @chat.itinerary.start_destination %></li>
+        <li class="mb-2"><strong>End:</strong> <%= @chat.itinerary.end_destination %></li>
+        <li class="mb-2"><strong>Group Size:</strong> <%= @chat.itinerary.group_size || "-" %></li>
+        <li class="mb-2"><strong>Kids:</strong> <%= @chat.itinerary.kids&.capitalize || "-" %></li>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= turbo_stream.replace "itinerary-map" do %>
+    <div id="itinerary-map" class="card h-100 shadow-sm border-0 overflow-hidden">
+      <div
+        data-controller="route-map"
+        data-route-map-geojson-value="<%= @geojson.to_json %>"
+        style="height: 100%; min-height: 350px; width: 100%;">
+      </div>
+    </div>
+  <% end %>
+<% end %>

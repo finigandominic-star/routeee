@@ -1,19 +1,23 @@
-<%= link_to "← #{@chat.itinerary.name}", itinerary_path(@chat.itinerary) %>
+<%# app/views/chats/show.html.erb %>
+<%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm btn-outline-secondary mb-3" %>
 
-<h1 id="chat_title"><%= @chat.title %></h1>
+<!-- The Map Container -->
+<div data-controller="route-map" class="mb-4 shadow-sm border rounded" style="height: 400px; width: 100%; overflow: hidden;">
+  <div data-route-map-target="container" style="height: 100%; width: 100%;"></div>
+</div>
 
-<div id="messages">
+<div id="messages" class="mb-4">
   <% @chat.messages.each do |message| %>
     <% if message.role == "user" %>
       <div class="d-flex justify-content-end mb-2">
         <div class="bg-white px-3 pb-0 pt-3 rounded-pill">
-          <%= raw(render_markdown(message.content)) %>
+          <%= simple_format(message.content) %>
         </div>
       </div>
     <% elsif message.role == "assistant" %>
       <div class="d-flex justify-content-start mb-5">
         <div class="px-3 pb-0 pt-3">
-          <%= raw(render_markdown(message.content)) %>
+         <%= simple_format(message.content) %>
         </div>
       </div>
     <% end %>
