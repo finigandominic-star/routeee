@@ -72,3 +72,26 @@
     <% end %>
   </div>
 </div>
+
+<%# version3 from the slides %>
+<div class="row">
+  <div class="col">
+    <h1><%= @itinerary.name %></h1>
+    <%# <%= raw(render_markdown(@message.content)) %>
+  </div>
+  <div class="col-md-3">
+    <h2>Chats</h2>
+    <div class="mb-4">
+      <% if @chats.any? %>
+        <ul>
+          <% @chats.each do |chat| %>
+            <li><%= link_to chat.title, chat_path(chat) %></li>
+          <% end %>
+        </ul>
+      <% else %>
+        There are no chats yet.
+      <% end %>
+      <%= button_to "New chat", itinerary_chats_path(@itinerary), class: "btn btn-primary" %>
+    </div>
+  </div>
+</div>
