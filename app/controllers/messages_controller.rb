@@ -25,13 +25,14 @@ INSTRUCTIONS:\n\n
       Message.create(role: "assistant", content: response.content, chat: @chat)
 
       @chat.generate_title_from_first_message
-      
+
       redirect_to chat_path(@chat)
       else
         render "chats/show", status: :unprocessable_entity
     end
   end
 
+  
   private
     def message_params
     params.require(:message).permit(:content)
