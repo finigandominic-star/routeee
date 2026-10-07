@@ -1,3 +1,32 @@
+<div class="container m-5">
+  <h1><%= @itinerary.name %></h1>
+
+  <div class="row">
+    <% @itineraries.each do |itinerary| %>
+    <div class="col-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><%= itinerary.name %></h5>
+          <ul>
+            <%# bike_type %>
+            <li><%= itinerary.bike_type %></li>
+            <%# distance %>
+            <li><%= itinerary.distance %></li>
+            <%# start_destination %>
+            <li><%= itinerary.start_destination %></li>
+            <%# end_destination %>
+            <li><%= itinerary.end_destination %></li>
+            <%# group_size %>
+            <li><%= itinerary.group_size %></li>
+            <%# kids? %>
+            <li><%= itinerary.kids %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <% end %>
+  </div>
+  <%= link_to "Back to itineraries", root_path, class: "btn btn-primary mt-3" %>
 <!-- Header Section with Title and Button -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h4 class="mb-0">Chats</h4>
