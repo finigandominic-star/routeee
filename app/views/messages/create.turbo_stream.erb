@@ -1,38 +1,47 @@
 <%# app/views/messages/create.turbo_stream.erb %>
 
-<%# 1. Clear the input form %>
+<%# 1. Reset text input form %>
 <%= turbo_stream.replace "new_message_container" do %>
   <div id="new_message_container">
     <%= simple_form_for [@chat, Message.new] do |f| %>
-      <%= f.input :content, label: false, required: true, placeholder: "Type your reply..." %>
-      <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary' %>
+      <div class="input-group">
+        <%= f.input :content, label: false, required: true, placeholder: "Type your reply...", input_html: { class: "form-control rounded-pill-start" } %>
+        <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary rounded-pill-end px-4' %>
+      </div>
     <% end %>
   </div>
 <% end %>
 
-<%# 2. Append the user message %>
+<%# 2. Append User Message %>
 <%= turbo_stream.append "messages" do %>
   <div class="d-flex justify-content-end mb-2">
-    <div class="bg-primary text-white px-3 pb-0 pt-3 rounded-pill">
+    <div class="bg-primary text-white px-3 py-2 rounded-4 shadow-sm">
       <%= simple_format(@message.content) %>
     </div>
   </div>
 <% end %>
 
-<%# 3. Append the assistant message %>
+<%# 3. Append Assistant Message %>
 <%= turbo_stream.append "messages" do %>
-  <div class="d-flex justify-content-start mb-5">
-    <div class="bg-light px-3 pb-0 pt-3 rounded">
+  <div class="d-flex justify-content-start mb-4">
+    <div class="bg-light text-dark px-3 py-2 rounded-4 border">
       <%= simple_format(@assistant_message.content) %>
     </div>
   </div>
 <% end %>
 
-<!-- Update the Itinerary Details AND the Main Map instantly! -->
+<%# 4. Update Details & Map %>
 <% if @geojson.present? %>
   <%= turbo_stream.replace "itinerary-details" do %>
-    <div id="itinerary-details">
-      <ul class="list-unstyled mt-3">
+    <div id="itinerary-details" class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+      <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+        <h5 class="mb-0 text-primary fw-bold">Route Details</h5>
+        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editRouteModal">
+          <i class="bi bi-pencil me-1"></i> Edit Route
+        </button>
+      </div>
+
+      <ul class="list-unstyled mt-2 mb-3">
         <li class="mb-2"><strong>Bike Type:</strong> <%= @chat.itinerary.bike_type&.gsub('cycling-', '')&.capitalize %></li>
         <li class="mb-2"><strong>Distance:</strong> <%= @chat.itinerary.distance %> miles</li>
         <li class="mb-2"><strong>Start:</strong> <%= @chat.itinerary.start_destination %></li>
@@ -40,11 +49,16 @@
         <li class="mb-2"><strong>Group Size:</strong> <%= @chat.itinerary.group_size || "-" %></li>
         <li class="mb-2"><strong>Kids:</strong> <%= @chat.itinerary.kids&.capitalize || "-" %></li>
       </ul>
+
+      <!-- Save Changes Button -->
+      <%= button_to itinerary_path(@chat.itinerary), method: :patch, class: "btn btn-success rounded-pill w-100 shadow-sm fw-bold", data: { turbo: true } do %>
+        <i class="bi bi-check-circle me-1"></i> Save Changes
+      <% end %>
     </div>
   <% end %>
 
   <%= turbo_stream.replace "itinerary-map" do %>
-    <div id="itinerary-map" class="card h-100 shadow-sm border-0 overflow-hidden">
+    <div id="itinerary-map" class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
       <div
         data-controller="route-map"
         data-route-map-geojson-value="<%= @geojson.to_json %>"
@@ -53,3 +67,20 @@
     </div>
   <% end %>
 <% end %>
+
+<%# 5. Hide modal, remove dark backdrop overlay, scroll chat into view %>
+<script>
+  const modalEl = document.getElementById('editRouteModal');
+  if (modalEl) {
+    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    modal.hide();
+  }
+
+  // Remove lingering dark backdrop element and reset body scrolling
+  document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+  document.body.classList.remove('modal-open');
+  document.body.style.removeProperty('padding-right');
+
+  // Scroll down to the newest chat message smoothly
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+</script>

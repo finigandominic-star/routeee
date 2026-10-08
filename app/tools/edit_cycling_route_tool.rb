@@ -1,26 +1,16 @@
-class GenerateCyclingRouteTool < RubyLLM::Tool
-  description "Map drawing and route updating tool. Call this to plot or edit a cycling route. You MUST provide start_destination and end_destination. If the newest message is short, pull the locations from conversation history. NEVER call with empty parameters."
+class EditCyclingRouteTool < RubyLLM::Tool
+  description "Edits an existing cycling itinerary. Call this whenever the user asks to modify or update an existing route's start location, end location, or bike profile."
 
-  def execute(start_destination: nil, end_destination: nil, profile: "cycling-regular", itinerary_id: nil, **kwargs)
-    actual_start = start_destination || kwargs["start_destination"] || kwargs[:start_city] || kwargs["start_city"]
-    actual_end   = end_destination   || kwargs["end_destination"]   || kwargs[:end_city]   || kwargs["end_city"]
-    actual_prof  = kwargs["profile"] || profile
+  def execute(itinerary_id:, start_destination: nil, end_destination: nil, profile: "cycling-regular", **kwargs)
+    itinerary = Itinerary.find_by(id: itinerary_id)
+    return { status: "error", message: "Itinerary not found" } unless itinerary
 
-    Rails.logger.info "\n🚀 TOOL TRIGGERED BY AI!"
-    Rails.logger.info "   -> Start: #{actual_start}"
-    Rails.logger.info "   -> End: #{actual_end}"
-    Rails.logger.info "   -> Profile: #{actual_prof}\n"
-
-    unless actual_start && actual_end
-      return { status: "error", message: "Missing locations." }
-    end
+    actual_start = start_destination || kwargs["start_destination"] || itinerary.start_destination
+    actual_end   = end_destination   || kwargs["end_destination"]   || itinerary.end_destination
+    actual_prof  = profile           || kwargs["profile"]           || itinerary.bike_type || "cycling-regular"
 
     start_coords = geocode(actual_start)
     end_coords   = geocode(actual_end, focus_coords: start_coords)
-
-    Rails.logger.info "\n🌍 GEOCODER RESULTS:"
-    Rails.logger.info "   -> #{actual_start} = #{start_coords.inspect}"
-    Rails.logger.info "   -> #{actual_end} = #{end_coords.inspect}\n"
 
     return { status: "error", message: "Could not find coordinates for those locations" } unless start_coords && end_coords
 
@@ -32,24 +22,22 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
     end
 
     if response.success?
-      Rails.logger.info "\n✅ ORS ROUTE FETCHED SUCCESSFULLY!\n"
-
       parsed_json = JSON.parse(response.body)
       distance_meters = parsed_json.dig("features", 0, "properties", "summary", "distance") || 0
       distance_miles = (distance_meters / 1609.34).round(1)
 
-      Thread.current[:ors_route_data] = {
+      # Persist updates to the database
+      itinerary.update!(
         geojson: parsed_json,
         distance: distance_miles,
         start_destination: actual_start,
         end_destination: actual_end,
         bike_type: actual_prof
-      }
+      )
 
-      { status: "success", geojson: "GeoJSON saved to memory." }
+      { status: "success", message: "Itinerary updated successfully." }
     else
-      Rails.logger.error "\n❌ ORS API ERROR: #{response.body}\n"
-      { status: "error", message: "Failed to fetch route from ORS" }
+      { status: "error", message: "Failed to recalculate route from ORS" }
     end
   end
 
