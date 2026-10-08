@@ -1,2 +1,27 @@
-<h1>Hello, I'm Routeee!</h1>
-<p>Where do you want to ride your bike?</p>
+<div class="container my-5">
+  <!-- 1. Upgraded container from rounded-3 to rounded-4 -->
+  <div class="p-5 text-center bg-body-tertiary rounded-4 shadow-sm border overflow-hidden">
+
+      <div class="mb-4 mx-n5 mt-n5">
+      <!-- 2. Upgraded image class to rounded-top-4 to match the container -->
+      <%= image_tag "family_bike.jpg",
+            alt: "Cyclists riding on a scenic road",
+            class: "img-fluid w-100 rounded-top-4",
+            style: "height: 350px; object-fit: cover;" %>
+    </div>
+
+    <h1 class="display-4 fw-bold text-black mb-3 mt-4">Hello, I'm Routeee!</h1>
+
+    <p class="lead text-muted mx-auto mb-5" style="max-width: 600px;">
+      Your AI-powered cycling companion. Tell me where you want to ride, what kind of bike you have, and who is joining you. I'll automatically plan the perfect route, calculate distances, and plot it on an interactive map for you.
+    </p>
+
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-3">
+      <%= link_to "My Routes", itineraries_path, class: "btn btn-primary btn-lg px-4 gap-3" %>
+
+      <% unless user_signed_in? %>
+        <%= link_to "Log In", new_user_session_path, class: "btn btn-outline-secondary btn-lg px-4" %>
+      <% end %>
+    </div>
+  </div>
+</div>

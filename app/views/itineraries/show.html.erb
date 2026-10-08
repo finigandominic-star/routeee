@@ -1,95 +1,115 @@
-<div class="container m-5">
-  <h1><%= @itinerary.name || "Route Planner" %></h1>
+<div class="container py-5">
 
-  <div class="row mb-5">
+  <!-- Page Header & Navigation -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5 fw-bold text-dark mb-0"><%= @itinerary.name || "Route Planner" %></h1>
+    <%= link_to "← Back to Itineraries", itineraries_path, class: "btn btn-outline-secondary rounded-pill px-4 fw-semibold" %>
+  </div>
+
+  <div class="row mb-5 g-4"> <!-- Added g-4 for better gutter spacing between columns -->
+
     <!-- Left Column: Details -->
-    <div class="col-12 col-md-5 mb-3">
-      <div class="card h-100 shadow-sm border-0">
-        <div class="card-body">
-          <h5 class="card-title text-primary">Route Details</h5>
+    <div class="col-12 col-md-5">
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold text-primary mb-4">Route Details</h5>
 
           <div id="itinerary-details">
-            <ul class="list-unstyled mt-3">
-              <li class="mb-2"><strong>Bike Type:</strong> <%= @itinerary.bike_type&.gsub('cycling-', '')&.capitalize || "Pending..." %></li>
-              <li class="mb-2"><strong>Distance:</strong> <%= @itinerary.distance ? "#{@itinerary.distance} miles" : "Pending..." %></li>
-              <li class="mb-2"><strong>Start:</strong> <%= @itinerary.start_destination || "Pending..." %></li>
-              <li class="mb-2"><strong>End:</strong> <%= @itinerary.end_destination || "Pending..." %></li>
-              <li class="mb-2"><strong>Group Size:</strong> <%= @itinerary.group_size || "-" %></li>
-              <li class="mb-2"><strong>Kids:</strong> <%= @itinerary.kids&.capitalize || "-" %></li>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+                <span class="text-muted fw-semibold">Bike Type</span>
+                <span class="fw-bold text-dark"><%= @itinerary.bike_type&.gsub('cycling-', '')&.capitalize || "Pending..." %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+                <span class="text-muted fw-semibold">Distance</span>
+                <span class="fw-bold text-dark"><%= @itinerary.distance ? "#{@itinerary.distance} miles" : "Pending..." %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+                <span class="text-muted fw-semibold">Start</span>
+                <span class="fw-bold text-dark text-end ms-3"><%= @itinerary.start_destination || "Pending..." %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+                <span class="text-muted fw-semibold">End</span>
+                <span class="fw-bold text-dark text-end ms-3"><%= @itinerary.end_destination || "Pending..." %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+                <span class="text-muted fw-semibold">Group Size</span>
+                <span class="fw-bold text-dark"><%= @itinerary.group_size || "-" %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent py-3">
+                <span class="text-muted fw-semibold">Kids</span>
+                <span class="fw-bold text-dark"><%= @itinerary.kids&.capitalize || "-" %></span>
+              </li>
             </ul>
           </div>
-
         </div>
       </div>
     </div>
 
     <!-- Right Column: The Map -->
-    <div class="col-12 col-md-7 mb-3">
-      <!-- Notice we added the id="itinerary-map" so Turbo can update it -->
-      <div id="itinerary-map" class="card h-100 shadow-sm border-0 overflow-hidden">
+    <div class="col-12 col-md-7">
+      <div id="itinerary-map" class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
         <% if @itinerary.geojson.present? %>
           <div
             data-controller="route-map"
             data-route-map-geojson-value="<%= @itinerary.geojson.to_json %>"
-            style="height: 100%; min-height: 350px; width: 100%;">
+            style="height: 100%; min-height: 400px; width: 100%;">
           </div>
         <% else %>
-          <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 100%; min-height: 350px; width: 100%;">
-            No route generated yet. Chat with the assistant below to plot it!
+          <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 100%; min-height: 400px; width: 100%;">
+            <div class="text-center p-4">
+              <h5 class="fw-bold text-secondary">No route generated yet</h5>
+              <p class="mb-0">Chat with the assistant below to plot it!</p>
+            </div>
           </div>
         <% end %>
       </div>
     </div>
   </div>
 
-  <%= link_to "Back to itineraries", itineraries_path, class: "btn btn-outline-secondary mb-4" %>
-
   <!-- Header Section with Title and Button -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="mb-0">Chats</h4>
-    <%= button_to "New Chat", itinerary_chats_path(@itinerary), class: "btn btn-primary btn-sm", method: :post %>
+  <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
+    <h4 class="fw-bold mb-0 text-dark">Assistant Chats</h4>
+    <%= button_to "+ New Chat", itinerary_chats_path(@itinerary), class: "btn btn-primary rounded-pill px-4 fw-semibold shadow-sm", method: :post %>
   </div>
 
-  <!-- Keep your existing accordion code exactly as it is below this line! -->
-
-  <!-- Bootstrap Accordion -->
-  <div class="accordion shadow-sm" id="chatsAccordion">
+  <!-- Bootstrap Accordion (Structure kept identical to your logic, just upgraded styling) -->
+  <div class="accordion shadow-sm rounded-4 overflow-hidden border-0" id="chatsAccordion">
 
     <% if @itinerary.chats.any? %>
-      <!-- Notice we use each_with_index here so your 'index == 0' logic works! -->
       <% @itinerary.chats.each_with_index do |chat, index| %>
-        <div class="accordion-item">
+        <div class="accordion-item border-0 border-bottom">
 
           <h2 class="accordion-header" id="heading-<%= chat.id %>">
-            <button class="accordion-button <%= 'collapsed' unless index == 0 %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= chat.id %>" aria-expanded="<%= index == 0 ? 'true' : 'false' %>" aria-controls="collapse-<%= chat.id %>">
-              <%= chat.title.presence || "Chat #{chat.id}" %> - <%= chat.created_at.strftime("%b %d, %Y") %>
+            <button class="accordion-button bg-light fw-semibold text-dark <%= 'collapsed' unless index == 0 %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= chat.id %>" aria-expanded="<%= index == 0 ? 'true' : 'false' %>" aria-controls="collapse-<%= chat.id %>">
+              <%= chat.title.presence || "Chat #{chat.id}" %> &nbsp;<span class="text-muted fw-normal fs-6">| <%= chat.created_at.strftime("%b %d, %Y") %></span>
             </button>
           </h2>
 
           <div id="collapse-<%= chat.id %>" class="accordion-collapse collapse <%= 'show' if index == 0 %>" aria-labelledby="heading-<%= chat.id %>" data-bs-parent="#chatsAccordion">
-            <div class="accordion-body">
+            <div class="accordion-body p-4">
 
               <!-- Chat Action Buttons -->
-              <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                <%= link_to "Continue Chat", chat_path(chat), class: "btn btn-sm btn-outline-primary" %>
+              <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <%= link_to "Continue Chat", chat_path(chat), class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
 
                 <%= button_to "Delete Chat", itinerary_chat_path(@itinerary, chat),
                     method: :delete,
                     data: { turbo_confirm: "Are you sure you want to delete this chat?" },
-                    class: "btn btn-sm btn-outline-danger" %>
+                    class: "btn btn-sm btn-outline-danger rounded-pill px-3" %>
               </div>
 
-              <!-- Render the messages for this chat -->
+              <!-- Chat Messages Preview (Basic styling as requested) -->
               <% if chat.messages.any? %>
-                <div class="d-flex flex-column gap-2">
+                <div class="d-flex flex-column gap-3">
                   <% chat.messages.each do |message| %>
-                    <div class="p-2 rounded <%= message.role == 'user' ? 'bg-primary text-white align-self-end' : 'bg-light align-self-start' %>" style="max-width: 80%;">
+                    <div class="p-3 rounded-4 shadow-sm <%= message.role == 'user' ? 'bg-primary text-white align-self-end' : 'bg-white border align-self-start' %>" style="max-width: 80%;">
                       <strong><%= message.role.capitalize %>:</strong> <%= message.content %>
                     </div>
                   <% end %>
                 </div>
               <% else %>
-                <p class="text-muted mb-0">No messages yet.</p>
+                <p class="text-muted text-center mb-0 py-3">No messages yet. Click 'Continue Chat' to start.</p>
               <% end %>
 
             </div>
@@ -98,9 +118,10 @@
       <% end %>
 
     <% else %>
-      <!-- If there are no chats, show this alert -->
-      <div class="alert alert-light text-center text-muted mb-0 border">
-        No chats started yet.
+      <!-- Empty State -->
+      <div class="alert alert-light text-center text-muted mb-0 py-5 rounded-4 shadow-sm border-0">
+        <p class="mb-0 fw-semibold fs-5">No chats started yet.</p>
+        <p class="small">Use the button above to begin planning this route.</p>
       </div>
     <% end %>
 
