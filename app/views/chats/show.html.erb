@@ -1,32 +1,179 @@
 <%# app/views/chats/show.html.erb %>
-<%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm btn-outline-secondary mb-3" %>
 
-<!-- The Map Container -->
-<div data-controller="route-map" class="mb-4 shadow-sm border rounded" style="height: 400px; width: 100%; overflow: hidden;">
-  <div data-route-map-target="container" style="height: 100%; width: 100%;"></div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm btn-outline-secondary rounded-pill px-3" %>
 </div>
 
+<div class="row mb-4">
+  <!-- Map Container Target -->
+  <div class="col-md-8">
+    <div id="itinerary-map" class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+      <div
+        data-controller="route-map"
+        data-route-map-geojson-value="<%= @chat.itinerary.geojson.to_json %>"
+        style="height: 100%; min-height: 350px; width: 100%;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Container Target -->
+  <div class="col-md-4">
+    <div id="itinerary-details" class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+      <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+        <h5 class="mb-0 text-primary fw-bold">Route Details</h5>
+
+        <!-- EDIT BUTTON Trigger -->
+        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#editRouteModal">
+          <i class="bi bi-pencil me-1"></i> Edit Route
+        </button>
+      </div>
+
+      <ul class="list-unstyled mt-2 mb-3">
+        <li class="mb-2"><strong>Bike Type:</strong> <%= @chat.itinerary.bike_type&.gsub('cycling-', '')&.capitalize || "-" %></li>
+        <li class="mb-2"><strong>Distance:</strong> <%= @chat.itinerary.distance || "?" %> miles</li>
+        <li class="mb-2"><strong>Start:</strong> <%= @chat.itinerary.start_destination || "-" %></li>
+        <li class="mb-2"><strong>End:</strong> <%= @chat.itinerary.end_destination || "-" %></li>
+        <li class="mb-2"><strong>Group Size:</strong> <%= @chat.itinerary.group_size || "-" %></li>
+        <li class="mb-2"><strong>Kids:</strong> <%= @chat.itinerary.kids&.capitalize || "-" %></li>
+      </ul>
+
+      <!-- SAVE ITINERARY BUTTON -->
+      <%= button_to itinerary_path(@chat.itinerary), method: :patch, class: "btn btn-success rounded-pill w-100 shadow-sm fw-bold", data: { turbo: true } do %>
+        <i class="bi bi-check-circle me-1"></i> Save Changes
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Messages List -->
 <div id="messages" class="mb-4">
   <% @chat.messages.each do |message| %>
     <% if message.role == "user" %>
       <div class="d-flex justify-content-end mb-2">
-        <div class="bg-white px-3 pb-0 pt-3 rounded-pill">
+        <div class="bg-primary text-white px-3 py-2 rounded-4 shadow-sm">
           <%= simple_format(message.content) %>
         </div>
       </div>
     <% elsif message.role == "assistant" %>
-      <div class="d-flex justify-content-start mb-5">
-        <div class="px-3 pb-0 pt-3">
-         <%= simple_format(message.content) %>
+      <div class="d-flex justify-content-start mb-4">
+        <div class="bg-light text-dark px-3 py-2 rounded-4 border">
+          <%= simple_format(message.content) %>
         </div>
       </div>
     <% end %>
   <% end %>
 </div>
 
+<!-- Standard Chat Box -->
 <div id="new_message_container">
-  <%= simple_form_for [@chat, @message] do |f| %>
-    <%= f.input :content, label: "Ask a question", required: true, placeholder: "How should I get started with the bike trip?" %>
-    <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary' %>
+  <%= simple_form_for [@chat, Message.new] do |f| %>
+    <div class="input-group">
+      <%= f.input :content, label: false, required: true, placeholder: "Type your reply...", input_html: { class: "form-control rounded-pill-start" } %>
+      <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary rounded-pill-end px-4' %>
+    </div>
   <% end %>
+</div>
+
+<!-- ========================================== -->
+<!-- BLUE & WHITE ROUNDED EDIT ROUTE MODAL      -->
+<!-- ========================================== -->
+<div class="modal fade" id="editRouteModal" tabindex="-1" aria-labelledby="editRouteModalLabel" aria-hidden="true" data-controller="edit-modal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+
+      <!-- Blue Header with White Text -->
+      <div class="modal-header bg-primary text-white py-3">
+        <h5 class="modal-title fw-bold" id="editRouteModalLabel">What would you like to edit?</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <%= form_with url: chat_messages_path(@chat), method: :post, data: { action: "submit->edit-modal#submitForm" } do |f| %>
+        <div class="modal-body bg-white p-4">
+
+          <input type="hidden" name="message[content]" data-edit-modal-target="promptInput">
+
+          <!-- Checkbox Options -->
+          <div class="mb-3">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" name="edit_option" value="start" id="checkStart"
+                     data-edit-modal-target="checkbox" data-action="change->edit-modal#toggleOptions">
+              <label class="form-check-label fw-semibold text-secondary" for="checkStart">Starting Point</label>
+            </div>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" name="edit_option" value="end" id="checkEnd"
+                     data-edit-modal-target="checkbox" data-action="change->edit-modal#toggleOptions">
+              <label class="form-check-label fw-semibold text-secondary" for="checkEnd">Finishing Point</label>
+            </div>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" name="edit_option" value="type" id="checkType"
+                     data-edit-modal-target="checkbox" data-action="change->edit-modal#toggleOptions">
+              <label class="form-check-label fw-semibold text-secondary" for="checkType">Terrain / Bike Type</label>
+            </div>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" name="edit_option" value="distance" id="checkDistance"
+                     data-edit-modal-target="checkbox" data-action="change->edit-modal#toggleOptions">
+              <label class="form-check-label fw-semibold text-secondary" for="checkDistance">Distance / Time</label>
+            </div>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" name="edit_option" value="other" id="checkOther"
+                     data-edit-modal-target="otherCheckbox" data-action="change->edit-modal#toggleOptions">
+              <label class="form-check-label fw-semibold text-secondary" for="checkOther">Other</label>
+            </div>
+          </div>
+
+          <hr class="text-muted opacity-25">
+
+          <!-- Dynamic Input Fields -->
+          <div data-edit-modal-target="startGroup" class="mb-3 d-none">
+            <label class="form-label small fw-bold text-primary">Where would you like to start?</label>
+            <input type="text" class="form-control rounded-3 border-primary-subtle" placeholder="e.g. Oxford Station" data-edit-modal-target="startInput">
+          </div>
+
+          <div data-edit-modal-target="endGroup" class="mb-3 d-none">
+            <label class="form-label small fw-bold text-primary">Where would you like to finish?</label>
+            <input type="text" class="form-control rounded-3 border-primary-subtle" placeholder="e.g. Cambridge Center" data-edit-modal-target="endInput">
+          </div>
+
+          <div data-edit-modal-target="typeGroup" class="mb-3 d-none">
+            <label class="form-label small fw-bold text-primary">What terrain or bike type?</label>
+            <select class="form-select rounded-3 border-primary-subtle" data-edit-modal-target="typeInput">
+              <option value="cycling-regular">Regular City Bike</option>
+              <option value="cycling-road">Paved Road Bike</option>
+              <option value="cycling-mountain">Mountain / Trail Bike</option>
+              <option value="cycling-electric">E-Bike Friendly</option>
+            </select>
+          </div>
+
+          <div data-edit-modal-target="distanceGroup" class="mb-3 d-none">
+            <label class="form-label small fw-bold text-primary">What time or distance should it be edited to?</label>
+            <input type="text" class="form-control rounded-3 border-primary-subtle" placeholder="e.g. Around 15 miles or 1.5 hours" data-edit-modal-target="distanceInput">
+          </div>
+
+          <div data-edit-modal-target="otherGroup" class="mb-3 d-none">
+            <label class="form-label small fw-bold text-primary">Describe your custom changes:</label>
+            <textarea class="form-control rounded-3 border-primary-subtle" rows="3" placeholder="e.g. Avoid steep hills and pass by a cafe" data-edit-modal-target="otherInput"></textarea>
+          </div>
+
+        </div>
+
+        <div class="modal-footer bg-light border-0 py-3 px-4">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" data-edit-modal-target="submitBtn">
+            <span data-edit-modal-target="btnText">Generate</span>
+            <span data-edit-modal-target="btnSpinner" class="d-none">
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              Generating...
+            </span>
+          </button>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
 </div>

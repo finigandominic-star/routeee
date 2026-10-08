@@ -1,70 +1,14 @@
-<div class="d-flex justify-content-between align-items-center mb-4 mt-4">
-  <h1>My Routes</h1>
-  <%= button_to "Plan a New Route", itineraries_path, method: :post, class: "btn btn-primary btn-lg" %>
-</div>
-
-<!-- Grid Section for seeded/saved itineraries -->
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
-  <% @itineraries.each do |itinerary| %>
-    <div class="col">
-      <!-- FIXED: Removed the duplicate card wrapper here -->
-      <div class="card h-100 shadow-sm border-0">
-
-        <!-- MINI MAP PREVIEW -->
-        <% if itinerary.geojson.present? %>
-          <div
-            data-controller="route-map"
-            data-route-map-geojson-value="<%= itinerary.geojson.to_json %>"
-            style="height: 150px; width: 100%; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);">
-          </div>
-        <% else %>
-          <!-- Fallback if no route has been generated yet -->
-          <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 150px; width: 100%; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);">
-            No route generated yet
-          </div>
-        <% end %>
-
-        <div class="card-body">
-          <!-- Main Title: Start to End -->
-          <h5 class="card-title text-primary">
-            <%= itinerary.start_destination.presence || "New Route Plan" %>
-            <% if itinerary.end_destination.present? %>
-              <i class="bi bi-arrow-right mx-1"></i>
-              <%= itinerary.end_destination %>
-            <% end %>
-          </h5>
-
-          <!-- Subtitle: Distance and Bike Type -->
-          <h6 class="card-subtitle mb-3 text-muted">
-            <!-- Minor cleanup: replace 'cycling-' from the raw ORS bike profile string -->
-            <%= itinerary.distance || "?" %> miles • <%= itinerary.bike_type&.gsub('cycling-', '')&.capitalize || "Unknown" %> Bike
-          </h6>
-
-          <!-- Details List -->
-          <ul class="list-group list-group-flush mb-3">
-            <li class="list-group-item px-0 d-flex justify-content-between">
-              <strong>Group Size:</strong> <span><%= itinerary.group_size || "-" %></span>
-            </li>
-            <li class="list-group-item px-0 d-flex justify-content-between">
-              <strong>Kids Friendly:</strong> <span><%= itinerary.kids&.capitalize || "-" %></span>
-            </li>
-          </ul>
-
-          <!-- System Prompt (Truncated so it doesn't break the card height) -->
-          <p class="card-text text-secondary small text-truncate" title="<%= itinerary.system_prompt %>">
-            "<%= itinerary.system_prompt || "No prompt set." %>"
-          </p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="card-footer bg-white border-top-0 pt-0 d-flex gap-2">
-          <%= link_to "View Details", itinerary_path(itinerary), class: "btn btn-outline-primary btn-sm w-100" %>
-
-          <%= button_to "Delete", itinerary_path(itinerary), method: :delete,
-              data: { turbo_confirm: "Are you sure you want to delete this itinerary?" },
-              class: "btn btn-outline-danger btn-sm w-100" %>
-        </div>
-      </div>
-    </div>
+<!-- Action Buttons in app/views/itineraries/index.html.erb -->
+<div class="card-footer bg-white border-top-0 pt-0 d-flex gap-2">
+  <%# Find or link to existing chat for this itinerary %>
+  <% chat = itinerary.chats.find_by(user: current_user) %>
+  <% if chat %>
+    <%= link_to "Edit with AI", chat_path(chat), class: "btn btn-outline-primary btn-sm w-100" %>
+  <% else %>
+    <%= link_to "View Details", itinerary_path(itinerary), class: "btn btn-outline-primary btn-sm w-100" %>
   <% end %>
+
+  <%= button_to "Delete", itinerary_path(itinerary), method: :delete,
+      data: { turbo_confirm: "Are you sure you want to delete this itinerary?" },
+      class: "btn btn-outline-danger btn-sm w-100" %>
 </div>
