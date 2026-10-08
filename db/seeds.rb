@@ -22,21 +22,59 @@ emily = User.create!(email: "emily@emily.com", password: "123456")
 john = User.create!(email: "john@john.com", password: "123456")
 puts "Created 5 users."
 
+puts "Creating dummy GeoJSON..."
+# A simple, valid GeoJSON LineString (Coordinates format: [longitude, latitude])
+dummy_geojson = {
+  "type" => "FeatureCollection",
+  "features" => [
+    {
+      "type" => "Feature",
+      "properties" => {},
+      "geometry" => {
+        "type" => "LineString",
+        "coordinates" => [
+          [-0.9781, 51.4543], # Reading area
+          [-0.9681, 51.4643],
+          [-0.9581, 51.4743]
+        ]
+      }
+    }
+  ]
+}
+
 puts "Creating itineraries..."
-itinerary_1 = Itinerary.create!(bike_type: "mountain", distance: 7, start_destination: "10 baker street, London", end_destination: "10 baker street, London", group_size: 2, kids: "no", system_prompt: "test test test")
+
+itinerary_1 = Itinerary.create!(
+  bike_type: "mountain", distance: 7, start_destination: "10 baker street, London", end_destination: "10 baker street, London", group_size: 2, kids: "no", system_prompt: "test test test",
+  geojson: dummy_geojson
+)
 puts "Created itinerary #1"
 
-itinerary_2 = Itinerary.create!(bike_type: "road", distance: 3, start_destination: "Pangbourne, Berkshire", end_destination: "", group_size: 1, kids: "yes", system_prompt: "test test test")
+itinerary_2 = Itinerary.create!(
+  bike_type: "road", distance: 3, start_destination: "Pangbourne, Berkshire", end_destination: "Goring, Oxfordshire", group_size: 1, kids: "yes", system_prompt: "test test test",
+  geojson: dummy_geojson
+)
 puts "Created itinerary #2"
 
-itinerary_3 = Itinerary.create!(bike_type: "hybrid", distance: 15, start_destination: "Reading Station", end_destination: "Windsor Castle", group_size: 4, kids: "yes", system_prompt: "Provide a scenic, family-friendly route.")
+itinerary_3 = Itinerary.create!(
+  bike_type: "hybrid", distance: 15, start_destination: "Reading Station", end_destination: "Windsor Castle", group_size: 4, kids: "yes", system_prompt: "Provide a scenic, family-friendly route.",
+  geojson: dummy_geojson
+)
 puts "Created itinerary #3"
 
-itinerary_4 = Itinerary.create!(bike_type: "gravel", distance: 40, start_destination: "Richmond Park", end_destination: "Box Hill", group_size: 1, kids: "no", system_prompt: "Focus on challenging climbs and off-road trails.")
+itinerary_4 = Itinerary.create!(
+  bike_type: "gravel", distance: 40, start_destination: "Richmond Park", end_destination: "Box Hill", group_size: 1, kids: "no", system_prompt: "Focus on challenging climbs and off-road trails.",
+  geojson: dummy_geojson
+)
 puts "Created itinerary #4"
 
-itinerary_5 = Itinerary.create!(bike_type: "e-bike", distance: 20, start_destination: "Oxford", end_destination: "Blenheim Palace", group_size: 2, kids: "no", system_prompt: "Smooth paved roads for easy cruising.")
+itinerary_5 = Itinerary.create!(
+  bike_type: "e-bike", distance: 20, start_destination: "Oxford", end_destination: "Blenheim Palace", group_size: 2, kids: "no", system_prompt: "Smooth paved roads for easy cruising.",
+  geojson: dummy_geojson
+)
 puts "Created itinerary #5"
+
+puts "Finished! Seeded #{Itinerary.count} itineraries."
 
 puts "Creating chats..."
 chat_1 = Chat.create!(user: sarah, itinerary: itinerary_3, title: "Family Route to Windsor")
