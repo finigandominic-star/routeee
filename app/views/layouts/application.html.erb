@@ -27,14 +27,13 @@
   </head>
 
   <body>
+    <%= render "shared/navbar" %> <!-- 👈 Adding the navbar -->
     <p class="notice"><%= notice %></p>
     <p class="alert"><%= alert %></p>
 
-    <!-- navbar with user login -->
+   
     <%= link_to "Skip to main content", "#main-content", class: "visually-hidden-focusable" %>
-    <header>
-      <%= render "shared/navbar" %> <!-- 👈 Adding the navbar -->
-    </header>
+
 
     <main id="main-content">
       <%= yield %>
