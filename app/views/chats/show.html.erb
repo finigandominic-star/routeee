@@ -1,32 +1,72 @@
-<%# app/views/chats/show.html.erb %>
-<%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm btn-outline-secondary mb-3" %>
+<div class="container mt-4">
+  <!--
+    Card Background: bg-light (maps to $body-bg -> $light-gray)
+    Shadow & Rounded: Standard Bootstrap utilities
+  -->
+  <div class="card shadow-sm border-0 rounded-4 bg-light">
 
-<!-- The Map Container -->
-<div data-controller="route-map" class="mb-4 shadow-sm border rounded" style="height: 400px; width: 100%; overflow: hidden;">
-  <div data-route-map-target="container" style="height: 100%; width: 100%;"></div>
-</div>
+    <div class="card-body p-4">
 
-<div id="messages" class="mb-4">
-  <% @chat.messages.each do |message| %>
-    <% if message.role == "user" %>
-      <div class="d-flex justify-content-end mb-2">
-        <div class="bg-white px-3 pb-0 pt-3 rounded-pill">
-          <%= simple_format(message.content) %>
-        </div>
+      <!-- 1. Back Button -->
+      <!-- Text: text-body ($teal), Border: border-success ($green) -->
+      <div class="mb-4">
+        <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm border text-body border-success" %>
       </div>
-    <% elsif message.role == "assistant" %>
-      <div class="d-flex justify-content-start mb-5">
-        <div class="px-3 pb-0 pt-3">
-         <%= simple_format(message.content) %>
-        </div>
-      </div>
-    <% end %>
-  <% end %>
-</div>
 
-<div id="new_message_container">
-  <%= simple_form_for [@chat, @message] do |f| %>
-    <%= f.input :content, label: "Ask a question", required: true, placeholder: "How should I get started with the bike trip?" %>
-    <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary' %>
-  <% end %>
+      <!-- 2. Map Container -->
+      <!-- Border: border-success ($green) -->
+      <div data-controller="route-map" class="mb-4 shadow-sm rounded-3 border-success border-2" style="height: 350px; width: 100%; overflow: hidden;">
+        <div data-route-map-target="container" style="height: 100%; width: 100%;"></div>
+      </div>
+
+      <!-- 3. Messages Container -->
+      <!-- Scrollable area with max-height -->
+      <div id="messages" class="mb-4 overflow-y-auto" style="max-height: 400px; padding-right: 5px;">
+        <% @chat.messages.each do |message| %>
+          <% if message.role == "user" %>
+            <!-- User Bubble: bg-primary ($mint) + text-white -->
+            <div class="d-flex justify-content-end mb-3">
+              <div class="px-3 pb-2 pt-3 rounded-3 shadow-sm bg-primary text-white" style="max-width: 80%;">
+                <p class="created_at fst-italic small mb-1 opacity-75">
+                  <%= message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
+                </p>
+                <%= simple_format(message.content) %>
+              </div>
+            </div>
+          <% elsif message.role == "assistant" %>
+            <!-- Assistant Bubble: bg-white + text-body ($teal) + border-success ($green) -->
+            <div class="d-flex justify-content-start mb-3">
+              <div class="px-3 pb-2 pt-3 rounded-3 shadow-sm bg-white text-body border border-success" style="max-width: 80%;">
+                <p class="created_at fst-italic small mb-1 opacity-75">
+                  <%= message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
+                </p>
+                <%= simple_format(message.content) %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- 4. Input Form -->
+      <!-- Top Border: border-success ($green) -->
+      <div id="new_message_container" class="mt-4 pt-3 border-top border-success" style="border-top-width: 1px !important;">
+        <%= simple_form_for [@chat, @message] do |f| %>
+          <div class="input-group">
+            <%= f.input :content,
+                        label: false,
+                        required: true,
+                        placeholder: "How should I get started with the bike trip?",
+                        wrapper_html: { class: 'flex-grow-1' },
+                        input_html: { class: 'form-control', style: "border-color: #A1CCA6;" } %>
+
+            <!-- Submit Button: btn-primary ($mint) -->
+            <button type="submit" class="btn btn-primary rounded-end-3">
+              Ask LLM
+            </button>
+          </div>
+        <% end %>
+      </div>
+
+    </div>
+  </div>
 </div>

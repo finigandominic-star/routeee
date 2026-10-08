@@ -11,18 +11,36 @@ $body-bg:                $light-gray;
 $font-size-base:         1rem;
 
 // Colors
-$body-color: $gray;
-$primary:    $blue;
-$success:    $green;
-$info:       $yellow;
-$danger:     $red;
-$warning:    $orange;
+$body-bg: $light-gray;       // Background of the page/card
+$body-color: $teal;          // Default text color (for assistant messages)
+$primary: $mint;             // Buttons and User bubbles
+$success: $green;            // Borders and accents
+$info: $yellow;              // Info alerts
+$danger: $red;               // Danger alerts
+$warning: $orange;           // Warning alerts
 
 // Buttons & inputs' radius
-$border-radius-sm:            .0625rem;
-$border-radius:               .125rem;
-$border-radius-lg:            .25rem;
-$border-radius-xl:            .5rem;
-$border-radius-xxl:           1rem;
+$border-radius-sm:            .375rem;
+$border-radius:               .5rem;
+$border-radius-lg:            .75rem;
+$border-radius-xl:            1rem;
+$border-radius-xxl:           2rem;
+
+// Le Wagon UI Kit
+
+// Colors
+// $body-color: $gray;
+// $primary:    $blue;
+// $success:    $green;
+// $info:       $yellow;
+// $danger:     $red;
+// $warning:    $orange;
+
+// Buttons & inputs' radius
+// $border-radius-sm:            .0625rem;
+// $border-radius:               .125rem;
+// $border-radius-lg:            .25rem;
+// $border-radius-xl:            .5rem;
+// $border-radius-xxl:           1rem;
 
 // Override other variables below!
