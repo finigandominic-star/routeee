@@ -1,51 +1,83 @@
 <div class="container m-5">
-  <h1><%= @itinerary.name %></h1>
+  <h1><%= @itinerary.name || "Route Planner" %></h1>
 
-  <div class="row">
-    <!-- REMOVED the .each loop entirely. @itinerary is just one item! -->
-    <div class="col-12 col-md-6 mb-3"> <!-- Made it wider since it's just one card -->
+  <div class="row mb-5">
+    <!-- Left Column: Details -->
+    <div class="col-12 col-md-5 mb-3">
       <div class="card h-100 shadow-sm border-0">
         <div class="card-body">
-          <h5 class="card-title text-primary"><%= @itinerary.name %></h5>
-          <ul class="list-unstyled mt-3">
-            <li class="mb-2"><strong>Bike Type:</strong> <%= @itinerary.bike_type %></li>
-            <li class="mb-2"><strong>Distance:</strong> <%= @itinerary.distance %></li>
-            <li class="mb-2"><strong>Start:</strong> <%= @itinerary.start_destination %></li>
-            <li class="mb-2"><strong>End:</strong> <%= @itinerary.end_destination %></li>
-            <li class="mb-2"><strong>Group Size:</strong> <%= @itinerary.group_size %></li>
-            <li class="mb-2"><strong>Kids:</strong> <%= @itinerary.kids %></li>
-          </ul>
+          <h5 class="card-title text-primary">Route Details</h5>
+
+          <div id="itinerary-details">
+            <ul class="list-unstyled mt-3">
+              <li class="mb-2"><strong>Bike Type:</strong> <%= @itinerary.bike_type&.gsub('cycling-', '')&.capitalize || "Pending..." %></li>
+              <li class="mb-2"><strong>Distance:</strong> <%= @itinerary.distance ? "#{@itinerary.distance} miles" : "Pending..." %></li>
+              <li class="mb-2"><strong>Start:</strong> <%= @itinerary.start_destination || "Pending..." %></li>
+              <li class="mb-2"><strong>End:</strong> <%= @itinerary.end_destination || "Pending..." %></li>
+              <li class="mb-2"><strong>Group Size:</strong> <%= @itinerary.group_size || "-" %></li>
+              <li class="mb-2"><strong>Kids:</strong> <%= @itinerary.kids&.capitalize || "-" %></li>
+            </ul>
+          </div>
+
         </div>
+      </div>
+    </div>
+
+    <!-- Right Column: The Map -->
+    <div class="col-12 col-md-7 mb-3">
+      <!-- Notice we added the id="itinerary-map" so Turbo can update it -->
+      <div id="itinerary-map" class="card h-100 shadow-sm border-0 overflow-hidden">
+        <% if @itinerary.geojson.present? %>
+          <div
+            data-controller="route-map"
+            data-route-map-geojson-value="<%= @itinerary.geojson.to_json %>"
+            style="height: 100%; min-height: 350px; width: 100%;">
+          </div>
+        <% else %>
+          <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 100%; min-height: 350px; width: 100%;">
+            No route generated yet. Chat with the assistant below to plot it!
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
 
-  <%= link_to "Back to itineraries", root_path, class: "btn btn-outline-secondary mt-3 mb-5" %>
+  <%= link_to "Back to itineraries", itineraries_path, class: "btn btn-outline-secondary mb-4" %>
 
   <!-- Header Section with Title and Button -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="mb-0">Chats</h4>
-    <%= link_to "New Chat", new_itinerary_chat_path(@itinerary), class: "btn btn-primary btn-sm" %>
+    <%= button_to "New Chat", itinerary_chats_path(@itinerary), class: "btn btn-primary btn-sm", method: :post %>
   </div>
+
+  <!-- Keep your existing accordion code exactly as it is below this line! -->
 
   <!-- Bootstrap Accordion -->
   <div class="accordion shadow-sm" id="chatsAccordion">
-    <% if @itinerary.chats.any? %>
-      <% @itinerary.chats.each_with_index do |chat, index| %>
-        <div class="accordion-item border-0 border-bottom">
 
-          <!-- Accordion Header (Clickable) -->
-          <!-- FIXED: id uses chat.id exclusively to avoid broken HTML formatting -->
+    <% if @itinerary.chats.any? %>
+      <!-- Notice we use each_with_index here so your 'index == 0' logic works! -->
+      <% @itinerary.chats.each_with_index do |chat, index| %>
+        <div class="accordion-item">
+
           <h2 class="accordion-header" id="heading-<%= chat.id %>">
-            <button class="accordion-button <%= 'collapsed' unless index == 0 %> bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= chat.id %>" aria-expanded="<%= index == 0 ? 'true' : 'false' %>" aria-controls="collapse-<%= chat.id %>">
-              <strong>Chat: <%= chat.title %></strong> &nbsp;<span class="text-muted small">— Started <%= time_ago_in_words(chat.created_at) %> ago</span>
+            <button class="accordion-button <%= 'collapsed' unless index == 0 %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= chat.id %>" aria-expanded="<%= index == 0 ? 'true' : 'false' %>" aria-controls="collapse-<%= chat.id %>">
+              <%= chat.title.presence || "Chat #{chat.id}" %> - <%= chat.created_at.strftime("%b %d, %Y") %>
             </button>
           </h2>
 
-          <!-- Accordion Body (Expandable Details) -->
-          <!-- FIXED: id="collapse-<%= chat.id %>" (was chat.title) -->
           <div id="collapse-<%= chat.id %>" class="accordion-collapse collapse <%= 'show' if index == 0 %>" aria-labelledby="heading-<%= chat.id %>" data-bs-parent="#chatsAccordion">
             <div class="accordion-body">
+
+              <!-- Chat Action Buttons -->
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                <%= link_to "Continue Chat", chat_path(chat), class: "btn btn-sm btn-outline-primary" %>
+
+                <%= button_to "Delete Chat", itinerary_chat_path(@itinerary, chat),
+                    method: :delete,
+                    data: { turbo_confirm: "Are you sure you want to delete this chat?" },
+                    class: "btn btn-sm btn-outline-danger" %>
+              </div>
 
               <!-- Render the messages for this chat -->
               <% if chat.messages.any? %>
@@ -62,36 +94,15 @@
 
             </div>
           </div>
-
         </div>
       <% end %>
+
     <% else %>
+      <!-- If there are no chats, show this alert -->
       <div class="alert alert-light text-center text-muted mb-0 border">
         No chats started yet.
       </div>
     <% end %>
-  </div>
-</div>
 
-<%# version3 from the slides %>
-<div class="row">
-  <div class="col">
-    <h1><%= @itinerary.name %></h1>
-    <%# <%= raw(render_markdown(@message.content)) %>
-  </div>
-  <div class="col-md-3">
-    <h2>Chats</h2>
-    <div class="mb-4">
-      <% if @chats.any? %>
-        <ul>
-          <% @chats.each do |chat| %>
-            <li><%= link_to chat.title, chat_path(chat) %></li>
-          <% end %>
-        </ul>
-      <% else %>
-        There are no chats yet.
-      <% end %>
-      <%= button_to "New chat", itinerary_chats_path(@itinerary), class: "btn btn-primary" %>
-    </div>
   </div>
 </div>

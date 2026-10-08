@@ -20,16 +20,15 @@ class ChatsController < ApplicationController
   end
 
   def new
-    @chat = Chat.new(params[:id])
+    @chat = Chat.new
   end
 
-  # def generate_title_from_first_message
-  #   return unless title == DEFAULT_TITLE
+  def destroy
+    @chat = current_user.chats.find(params[:id])
+    @itinerary = @chat.itinerary
 
-  #   first_user_message = messages.where(role: "user").order(:created_at).first
-  #   return if first_user_message.nil?
+    @chat.destroy
 
-  #   response = RubyLLM.chat.with_instructions(TITLE_PROMPT).ask(first_user_message.content)
-  #   update(title: response.content)
-  # end
+    redirect_to itinerary_path(@itinerary), status: :see_other, notice: "Chat deleted."
+  end
 end

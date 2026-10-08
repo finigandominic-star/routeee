@@ -10,3 +10,4 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 # using Le Wagon's UI Kit instead
 pin "bootstrap", to: "bootstrap.min.js", preload: true
 pin "@popperjs/core", to: "popper.js", preload: true
+pin "leaflet" # @1.9.4

@@ -7,10 +7,23 @@ class ItinerariesController < ApplicationController
 
    # the page showing one itinerary by id
   def show
-    @itinerary = Itinerary.find(params[:id])
     @chats = @itinerary.chats.where(user: current_user)
   end
 
+  def create
+    @itinerary = Itinerary.new(name: "New Route Plan")
+
+    if @itinerary.save
+      @chat = Chat.create!(
+        itinerary: @itinerary,
+        user: current_user,
+        title: "Untitled Chat"
+      )
+      redirect_to chat_path(@chat)
+    else
+      redirect_to itineraries_path, alert: "Could not start a new route."
+    end
+  end
 
   def destroy
     @itinerary.destroy
