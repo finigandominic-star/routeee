@@ -1,0 +1,8 @@
+<%# app/views/itineraries/_map.html.erb %>
+<div id="itinerary-map" class="card h-100 shadow-sm border-0 overflow-hidden">
+  <div
+    data-controller="route-map"
+    data-route-map-geojson-value="<%= geojson.present? ? geojson.to_json : itinerary.geojson.to_json %>"
+    style="height: 100%; min-height: 350px; width: 100%;">
+  </div>
+</div>

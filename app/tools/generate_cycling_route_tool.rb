@@ -1,3 +1,5 @@
+# app/tools/generate_cycling_route_tool.rb
+
 class GenerateCyclingRouteTool < RubyLLM::Tool
   description "Map drawing tool. Call this to plot a route. Accepts JSON keys: 'start_destination' (required), 'end_destination' (required), 'outbound_landmark' (optional), 'return_landmark' (optional), 'group_size' (integer), and 'kids' (yes/no)."
 
@@ -43,6 +45,11 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
 
     route_coords << end_coords
 
+    if start_coords == end_coords
+      return { status: "error", message: "Start and end locations resolved to the exact same place." }
+    end
+
+    # 3. Call OpenRouteService API with 2000m snap radii
     conn = Faraday.new(url: "https://api.openrouteservice.org")
     response = conn.post("/v2/directions/#{actual_prof}/geojson") do |req|
       req.headers['Authorization'] = ENV['ORS_API_KEY']
@@ -94,6 +101,7 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
       data = JSON.parse(response.body)
       data.dig("features", 0, "geometry", "coordinates")
     else
+      Rails.logger.error "Geocoder failed for '#{city_name}': #{response.body}"
       nil
     end
   end

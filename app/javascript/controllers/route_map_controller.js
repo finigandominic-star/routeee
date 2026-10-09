@@ -24,7 +24,7 @@ export default class extends Controller {
     }).addTo(this.map)
 
     if (this.hasGeojsonValue && Object.keys(this.geojsonValue).length > 0) {
-      const routeLayer = L.geoJSON(this.geojsonValue, {
+      this.routeLayer = L.geoJSON(this.geojsonValue, {
         style: {
           color: '#0d6efd',
           weight: 4,
