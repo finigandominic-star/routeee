@@ -3,7 +3,8 @@
 class GenerateCyclingRouteTool < RubyLLM::Tool
   description "Map drawing tool. Call this to plot a route. Accepts JSON keys: 'start_destination' (required), 'end_destination' (required), 'outbound_landmark' (optional), 'return_landmark' (optional), 'group_size' (integer), and 'kids' (yes/no)."
 
-  def execute(start_destination: nil, end_destination: nil, outbound_landmark: nil, return_landmark: nil, group_size: nil, kids: nil, profile: "cycling-regular", **kwargs)
+  def execute(start_destination: nil, end_destination: nil, outbound_landmark: nil, return_landmark: nil,
+              group_size: nil, kids: nil, profile: "cycling-regular", **kwargs)
     actual_start = start_destination || kwargs[:start_destination] || kwargs["start_destination"]
     actual_end   = end_destination   || kwargs[:end_destination]   || kwargs["end_destination"]
     actual_out   = outbound_landmark || kwargs[:outbound_landmark] || kwargs["outbound_landmark"]
@@ -19,9 +20,7 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
     Rails.logger.info "   -> Return: #{actual_ret || 'None'}"
     Rails.logger.info "   -> End: #{actual_end}\n"
 
-    unless actual_start && actual_end
-      return { status: "error", message: "Missing start or end locations." }
-    end
+    return { status: "error", message: "Missing start or end locations." } unless actual_start && actual_end
 
     start_coords = geocode(actual_start)
     end_coords = geocode(actual_end, focus_coords: start_coords)
@@ -34,12 +33,14 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
     if actual_out
       out_coords = geocode(actual_out, focus_coords: start_coords)
       return { status: "error", message: "Could not find outbound landmark." } unless out_coords
+
       route_coords << out_coords
     end
 
     if actual_ret
       ret_coords = geocode(actual_ret, focus_coords: start_coords)
       return { status: "error", message: "Could not find return landmark." } unless ret_coords
+
       route_coords << ret_coords
     end
 
@@ -50,9 +51,9 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
     end
 
     # 3. Call OpenRouteService API with 2000m snap radii
-    conn = Faraday.new(url: "https://api.openrouteservice.org")
-    response = conn.post("/v2/directions/#{actual_prof}/geojson") do |req|
-      req.headers['Authorization'] = ENV['ORS_API_KEY']
+    conn = Faraday.new(url: "https://api.heigit.org")
+    response = conn.post("/openrouteservice/v2/directions/#{actual_prof}/geojson") do |req|
+      req.headers['Authorization'] = ENV.fetch('ORS_API_KEY', nil)
       req.headers['Content-Type'] = 'application/json'
       req.body = { coordinates: route_coords }.to_json
     end
@@ -83,9 +84,9 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
   private
 
   def geocode(city_name, focus_coords: nil)
-    conn = Faraday.new(url: "https://api.openrouteservice.org")
-    response = conn.get("/geocode/search") do |req|
-      req.headers['Authorization'] = ENV['ORS_API_KEY']
+    conn = Faraday.new(url: "https://api.heigit.org.")
+    response = conn.get("/pelias/v1/search") do |req|
+      req.headers['Authorization'] = ENV.fetch('ORS_API_KEY', nil)
       req.params['text'] = city_name
       req.params['size'] = 1
       req.params['boundary.country'] = 'GB'
