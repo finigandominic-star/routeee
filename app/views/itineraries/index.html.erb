@@ -18,20 +18,22 @@
         <div class="col">
           <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden route-card">
 
-            <!-- Map Preview & Badges -->
-            <div class="position-relative" style="height: 180px; width: 100%;">
-              <% if itinerary.geojson.present? %>
-                <div
-                  data-controller="route-map"
-                  data-route-map-geojson-value="<%= itinerary.geojson.to_json %>"
-                  style="height: 100%; width: 100%;">
-                </div>
-              <% else %>
-                <div class="d-flex flex-column align-items-center justify-content-center h-100" style="background: linear-gradient(135deg, #e6f7f5 0%, #f4faf9 100%); color: var(--teal);">
-                  <i class="bi bi-signpost-split fs-2 mb-2 opacity-50"></i>
-                  <span class="small fw-semibold opacity-75">No route generated yet</span>
-                </div>
-              <% end %>
+        <!-- Map Preview & Badges -->
+        <div class="position-relative" style="height: 180px; width: 100%;">
+        <% if itinerary.geojson.present? %>
+        <div
+          id="map-<%= itinerary.id %>"
+          data-controller="route-map"
+          data-route-map-interactive-value="false"
+          data-route-map-geojson-value="<%= itinerary.geojson.is_a?(String) ? itinerary.geojson : itinerary.geojson.to_json %>"
+          style="height: 100%; width: 100%;">
+        </div>
+        <% else %>
+         <div class="d-flex flex-column align-items-center justify-content-center h-100" style="background: linear-gradient(135deg, #e6f7f5 0%, #f4faf9 100%); color: var(--teal);">
+        <i class="bi bi-signpost-split fs-2 mb-2 opacity-50"></i>
+        <span class="small fw-semibold opacity-75">No route generated yet</span>
+        </div>
+      <% end %>
 
               <!-- Badges -->
               <div class="position-absolute top-0 end-0 m-3 d-flex gap-2">

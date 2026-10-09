@@ -1,61 +1,67 @@
-<%# app/views/devise/sessions/new.html.erb %>
+<%# app/views/devise/registrations/new.html.erb %>
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh; background: linear-gradient(135deg, #e6f7f5 0%, #f4faf9 100%);">
-  <div class="card shadow-sm border-0 rounded-4" style="width: 100%; max-width: 400px;">
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div class="card border-0 rounded-4 routeee-shadow-tint" style="width: 100%; max-width: 400px;">
     <div class="card-body p-5">
 
       <!-- Header -->
       <div class="text-center mb-4">
-        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 56px; height: 56px; background: #e6f7f5;">
-          <i class="bi bi-signpost-split fs-4" style="color: var(--teal);"></i>
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-routeee-teal-light mb-3" style="width: 56px; height: 56px;">
+          <i class="bi bi-person-plus-fill fs-4 text-routeee-teal"></i>
         </div>
-        <p class="text-uppercase fw-bold small mb-1" style="letter-spacing: 0.08em; color: var(--teal);">Routeee</p>
-        <h1 class="h4 fw-bold text-body mb-1">Welcome back</h1>
-        <p class="text-muted small mb-0">Log in to plan your next ride</p>
+        <p class="text-uppercase fw-bold small text-routeee-teal mb-1" style="letter-spacing: 0.08em;">Routeee</p>
+        <h2 class="h4 fw-bold mb-1">Create your account</h2>
+        <p class="text-muted small mb-0">Start planning your rides</p>
       </div>
 
-      <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-        <div class="mb-3">
-          <%= f.label :email, class: "form-label fw-semibold small text-body" %>
-          <div class="input-group">
-            <span class="input-group-text bg-white border-end-0" style="color: var(--teal);">
-              <i class="bi bi-envelope"></i>
-            </span>
-            <%= f.email_field :email, autofocus: true, autocomplete: "email",
-                  class: "form-control border-start-0 ps-0", placeholder: "you@example.com" %>
-          </div>
+      <!-- Form -->
+      <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <div class="form-inputs">
+          <%= f.input :email,
+                      required: true,
+                      autofocus: true,
+                      label: "Email",
+                      input_html: {
+                        autocomplete: "email",
+                        placeholder: "you@example.com",
+                        class: "routeee-input"
+                      },
+                      wrapper_html: { class: "mb-3" } %>
+
+          <%= f.input :password,
+                      required: true,
+                      label: "Password",
+                      hint: (@minimum_password_length ? "#{@minimum_password_length} characters minimum" : nil),
+                      input_html: {
+                        autocomplete: "new-password",
+                        placeholder: "••••••••",
+                        class: "routeee-input"
+                      },
+                      wrapper_html: { class: "mb-3" } %>
+
+          <%= f.input :password_confirmation,
+                      required: true,
+                      label: "Confirm password",
+                      input_html: {
+                        autocomplete: "new-password",
+                        placeholder: "••••••••",
+                        class: "routeee-input"
+                      },
+                      wrapper_html: { class: "mb-4" } %>
         </div>
 
-        <div class="mb-3">
-          <%= f.label :password, class: "form-label fw-semibold small text-body" %>
-          <div class="input-group">
-            <span class="input-group-text bg-white border-end-0" style="color: var(--teal);">
-              <i class="bi bi-lock"></i>
-            </span>
-            <%= f.password_field :password, autocomplete: "current-password",
-                  class: "form-control border-start-0 ps-0", placeholder: "••••••••" %>
-          </div>
+        <div class="form-actions mt-4">
+          <!-- OUTLINE BUTTON: MATCHES FORGOT PASSWORD SUBMIT STYLE -->
+          <%= f.button :submit, "Sign up", class: "btn btn-routeee-outline w-100 fw-semibold py-2 rounded-pill" %>
         </div>
-
-        <% if devise_mapping.rememberable? %>
-          <div class="form-check mb-4">
-            <%= f.check_box :remember_me, class: "form-check-input" %>
-            <%= f.label :remember_me, class: "form-check-label small text-muted" %>
-          </div>
-        <% end %>
-
-        <%= f.submit "Log in", class: "btn btn-teal w-100 rounded-pill fw-semibold py-2 shadow-sm" %>
       <% end %>
 
-      <div class="text-center mt-4 pt-3 border-top">
+      <!-- Links -->
+      <div class="text-center mt-4 pt-3 border-top shared-links-faro">
         <div class="small">
-          <%- if devise_mapping.registerable? && controller_name != 'registrations' %>
-            <%= link_to "Create an account", new_registration_path(resource_name), class: "text-decoration-none fw-semibold", style: "color: var(--teal);" %>
-            <span class="text-muted mx-1">·</span>
-          <% end -%>
-          <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
-            <%= link_to "Forgot password?", new_password_path(resource_name), class: "text-decoration-none text-muted" %>
-          <% end -%>
+          <%= render "devise/shared/links" %>
         </div>
       </div>
 
@@ -64,27 +70,67 @@
 </div>
 
 <style>
-  :root {
-    --teal: #23CED9;
-    --teal-dark: #1AA8B2;
+  /* 1. DYNAMIC SHADOW USING --bs-link-color-rgb */
+  .routeee-shadow-tint {
+    box-shadow: 0 10px 30px rgba(var(--bs-link-color-rgb), 0.18) !important;
   }
 
-  .btn-teal {
-    background-color: var(--teal);
-    border-color: var(--teal);
-    color: #fff;
+  /* 2. COLOR UTILITIES */
+  .bg-routeee-teal-light {
+    background-color: rgba(var(--bs-link-color-rgb), 0.1) !important;
   }
-  .btn-teal:hover, .btn-teal:focus {
-    background-color: var(--teal-dark);
-    border-color: var(--teal-dark);
-    color: #fff;
+  .text-routeee-teal {
+    color: var(--bs-link-color) !important;
   }
 
-  .form-control:focus {
-    border-color: var(--teal);
-    box-shadow: 0 0 0 0.2rem rgba(35, 206, 217, 0.15);
+  /* 3. OUTLINE BUTTON (MATCHED STYLE: NO FILL -> HOVER SOLID FILL) */
+  .btn-routeee-outline {
+    background-color: transparent !important;
+    border: 2px solid var(--bs-link-color) !important;
+    color: var(--bs-link-color) !important;
+    transition: all 0.2s ease-in-out !important;
   }
-  .input-group:focus-within .input-group-text {
-    border-color: var(--teal);
+  .btn-routeee-outline:hover,
+  .btn-routeee-outline:focus,
+  .btn-routeee-outline:active {
+    background-color: var(--bs-link-color) !important;
+    border-color: var(--bs-link-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(var(--bs-link-color-rgb), 0.25) !important;
+  }
+
+  /* 4. INPUT STYLING */
+  .routeee-input {
+    color: var(--bs-link-color) !important;
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6;
+  }
+  .routeee-input:focus {
+    color: var(--bs-link-color) !important;
+    background-color: #ffffff !important;
+    border-color: var(--bs-link-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-link-color-rgb), 0.2) !important;
+  }
+
+  /* Browser Autofill Fix */
+  .routeee-input:-webkit-autofill,
+  .routeee-input:-webkit-autofill:hover,
+  .routeee-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--bs-link-color) !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  }
+
+  /* 5. TEAL & UNDERLINED SHARED LINKS */
+  .shared-links-faro a {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--bs-link-color) !important;
+    text-decoration: underline !important;
+    font-weight: 500;
+  }
+  .shared-links-faro a:hover {
+    filter: brightness(0.85);
+    text-decoration: underline !important;
   }
 </style>
