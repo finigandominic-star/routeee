@@ -1,13 +1,23 @@
 class MessagesController < ApplicationController
-SYSTEM_PROMPT = <<~PROMPT
+  SYSTEM_PROMPT = <<~PROMPT
     You are an expert cycling route assistant. Your goal is to plan the perfect cycle route.
 
     CRITICAL MAP TOOL INSTRUCTIONS:
-    - The tool REQUIRES a `start_destination` and `end_destination`.
-    - If the user provides a short answer (e.g., "scenic" or "mountain bike") in the [NEW MESSAGE], you MUST look back at the [CONVERSATION HISTORY] to find their previously stated start and end locations.
-    - NEVER call the tool with empty locations. If you don't know the locations, ask the user.
-    - ALWAYS format the destinations to include the town or city (e.g., "Armour Road, Tilehurst").
-    - If the user asks for a summary, distance, or details about a route you ALREADY plotted, provide text only. Do not call the tool again.
+    CRITICAL MAP TOOL INSTRUCTIONS:
+    - The tool REQUIRES a distinct `start_destination` and `end_destination`.
+    - TOOL ARGUMENTS: You must pass data to the tool using ONLY these exact keys: `start_destination`, `end_destination`, `outbound_landmark`, `return_landmark`, `group_size`, and `kids`.
+    - If the user provides a short answer (e.g., "scenic" or "mountain bike"), look back at the [CONVERSATION HISTORY] to find their locations.
+    - ALWAYS format the destinations to include the town, city, AND country to prevent geocoding errors (e.g., "Richmond Station, London, UK").
+    - Extract the `group_size` (as an integer) and whether there are `kids` ("yes" or "no") if mentioned.
+    - Do not call the tool if you are just summarizing an ALREADY plotted route.
+
+    CIRCULAR ROUTES & LOOPS:
+    - The map tool calculates the shortest path between points. If you only provide one halfway point, it will route the exact same roads out-and-back.
+    - To force a TRUE scenic circular loop, you MUST select TWO DISTINCT halfway landmarks in different areas of the park or region.
+    - If the user wants a circular route but doesn't know halfway points, YOU MUST ACT AS THE EXPERT.
+    - Autonomously select a specific `outbound_landmark` (e.g., Isabella Plantation, London, UK) and a COMPLETELY DIFFERENT `return_landmark` (e.g., Roehampton Gate, London, UK).
+    - IMMEDIATELY call the map tool. You MUST pass their start point as the `start_destination`, your first location as `outbound_landmark`, your second location as `return_landmark`, and their start point again as the `end_destination`.
+    - CRITICAL: Do NOT output conversational text like "I will plan this" or "Please hold on". You must trigger the map tool FIRST.
 
     CONVERSATION FLOW:
     - If missing basic parameters (start, end, bike type), ask natural follow-up questions.
@@ -36,8 +46,6 @@ SYSTEM_PROMPT = <<~PROMPT
         #{@message.content}
       TEXT
 
-      map_tool = GenerateCyclingRouteTool.new
-
       ruby_llm_chat = RubyLLM.chat
                              .with_instructions(SYSTEM_PROMPT)
                              .with_tools(GenerateCyclingRouteTool.new)
@@ -46,7 +54,7 @@ SYSTEM_PROMPT = <<~PROMPT
 
       @assistant_message = Message.create!(role: "assistant", content: llm_response.content, chat: @chat)
 
- if Thread.current[:ors_route_data].present?
+      if Thread.current[:ors_route_data].present?
         route_data = Thread.current[:ors_route_data]
         @geojson = route_data[:geojson]
 
@@ -55,6 +63,8 @@ SYSTEM_PROMPT = <<~PROMPT
           end_destination: route_data[:end_destination],
           distance: route_data[:distance],
           bike_type: route_data[:bike_type],
+          group_size: route_data[:group_size], # <-- NOW GRABBING THIS
+          kids: route_data[:kids],             # <-- NOW GRABBING THIS
           geojson: @geojson
         )
 
@@ -69,6 +79,7 @@ SYSTEM_PROMPT = <<~PROMPT
       render "chats/show", status: :unprocessable_entity
     end
   end
+
   private
 
   def message_params

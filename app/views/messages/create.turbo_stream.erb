@@ -1,55 +1,103 @@
 <%# app/views/messages/create.turbo_stream.erb %>
 
-<%# 1. Clear the input form %>
+<%# 1. Clear the input form (Using your modernized UI) %>
 <%= turbo_stream.replace "new_message_container" do %>
-  <div id="new_message_container">
+  <div id="new_message_container" class="mt-4 pt-3 border-top border-success" style="border-top-width: 1px !important;">
     <%= simple_form_for [@chat, Message.new] do |f| %>
-      <%= f.input :content, label: false, required: true, placeholder: "Type your reply..." %>
-      <%= f.button :submit, 'Ask LLM', class: 'btn btn-primary' %>
+      <div class="input-group">
+        <%= f.input :content,
+                    label: false,
+                    required: true,
+                    placeholder: "How should I get started with the bike trip?",
+                    wrapper_html: { class: 'flex-grow-1' },
+                    input_html: { class: 'form-control', style: "border-color: #A1CCA6;" } %>
+        <button type="submit" class="btn btn-primary rounded-end-3">
+          Ask LLM
+        </button>
+      </div>
     <% end %>
   </div>
 <% end %>
 
-<%# 2. Append the user message %>
+<%# 2. Append the user message (With your updated bubble styling & timestamp) %>
 <%= turbo_stream.append "messages" do %>
-  <div class="d-flex justify-content-end mb-2">
-    <div class="bg-primary text-white px-3 pb-0 pt-3 rounded-pill">
+  <div class="d-flex justify-content-end mb-3">
+    <div class="px-3 pb-2 pt-3 rounded-3 shadow-sm bg-primary text-white" style="max-width: 80%;">
+      <p class="created_at fst-italic small mb-1 opacity-75">
+        <%= @message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
+      </p>
       <%= simple_format(@message.content) %>
     </div>
   </div>
 <% end %>
 
-<%# 3. Append the assistant message %>
+<%# 3. Append the assistant message (With your updated bubble styling & timestamp) %>
 <%= turbo_stream.append "messages" do %>
-  <div class="d-flex justify-content-start mb-5">
-    <div class="bg-light px-3 pb-0 pt-3 rounded">
+  <div class="d-flex justify-content-start mb-3">
+    <div class="px-3 pb-2 pt-3 rounded-3 shadow-sm bg-white text-body border border-success" style="max-width: 80%;">
+      <p class="created_at fst-italic small mb-1 opacity-75">
+        <%= @assistant_message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
+      </p>
       <%= simple_format(@assistant_message.content) %>
     </div>
   </div>
 <% end %>
 
-<!-- Update the Itinerary Details AND the Main Map instantly! -->
+<!-- Update Maps and Details instantly when geojson is generated! -->
 <% if @geojson.present? %>
+
+  <%# 4. Updates the map on the CHAT page %>
+  <%= turbo_stream.replace "chat-map" do %>
+    <div id="chat-map"
+         data-controller="route-map"
+         data-route-map-geojson-value="<%= @geojson.to_json %>"
+         class="mb-4 shadow-sm rounded-3 border-success border-2"
+         style="height: 350px; width: 100%; overflow: hidden;">
+      <div data-route-map-target="container" style="height: 100%; width: 100%;"></div>
+    </div>
+  <% end %>
+
+  <%# 5. Updates the map on the ITINERARY SHOW page (if open in another tab) %>
+  <%= turbo_stream.replace "itinerary-map" do %>
+    <div id="itinerary-map" class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+      <div
+        data-controller="route-map"
+        data-route-map-geojson-value="<%= @geojson.to_json %>"
+        style="height: 100%; min-height: 400px; width: 100%;">
+      </div>
+    </div>
+  <% end %>
+
+  <%# 6. Updates the details block (using the modern list-group styling) %>
   <%= turbo_stream.replace "itinerary-details" do %>
     <div id="itinerary-details">
-      <ul class="list-unstyled mt-3">
-        <li class="mb-2"><strong>Bike Type:</strong> <%= @chat.itinerary.bike_type&.gsub('cycling-', '')&.capitalize %></li>
-        <li class="mb-2"><strong>Distance:</strong> <%= @chat.itinerary.distance %> miles</li>
-        <li class="mb-2"><strong>Start:</strong> <%= @chat.itinerary.start_destination %></li>
-        <li class="mb-2"><strong>End:</strong> <%= @chat.itinerary.end_destination %></li>
-        <li class="mb-2"><strong>Group Size:</strong> <%= @chat.itinerary.group_size || "-" %></li>
-        <li class="mb-2"><strong>Kids:</strong> <%= @chat.itinerary.kids&.capitalize || "-" %></li>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+          <span class="text-muted fw-semibold">Bike Type</span>
+          <span class="fw-bold text-dark"><%= @chat.itinerary.bike_type&.gsub('cycling-', '')&.capitalize %></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+          <span class="text-muted fw-semibold">Distance</span>
+          <span class="fw-bold text-dark"><%= @chat.itinerary.distance %> miles</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+          <span class="text-muted fw-semibold">Start</span>
+          <span class="fw-bold text-dark text-end ms-3"><%= @chat.itinerary.start_destination %></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+          <span class="text-muted fw-semibold">End</span>
+          <span class="fw-bold text-dark text-end ms-3"><%= @chat.itinerary.end_destination %></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-bottom bg-transparent py-3">
+          <span class="text-muted fw-semibold">Group Size</span>
+          <span class="fw-bold text-dark"><%= @chat.itinerary.group_size || "-" %></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent py-3">
+          <span class="text-muted fw-semibold">Kids</span>
+          <span class="fw-bold text-dark"><%= @chat.itinerary.kids&.capitalize || "-" %></span>
+        </li>
       </ul>
     </div>
   <% end %>
 
-  <%= turbo_stream.replace "itinerary-map" do %>
-    <div id="itinerary-map" class="card h-100 shadow-sm border-0 overflow-hidden">
-      <div
-        data-controller="route-map"
-        data-route-map-geojson-value="<%= @geojson.to_json %>"
-        style="height: 100%; min-height: 350px; width: 100%;">
-      </div>
-    </div>
-  <% end %>
 <% end %>
