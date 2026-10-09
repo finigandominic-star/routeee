@@ -96,7 +96,11 @@
               <!-- Chat Action Buttons -->
               <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <!-- Renamed from 'Continue Chat' to 'Edit' while linking to existing chat -->
-                <%= link_to "Edit", chat_path(chat), class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
+                <% if @itinerary.chats.present? %>
+                  <%= link_to "Edit Route", chat_path(@itinerary.chats.last), class: "btn btn-primary" %>
+                  <% else %>
+                  <button class="btn btn-secondary" disabled>Chat Deleted</button>
+                <% end %>
 
                 <%= button_to "Delete Chat", itinerary_chat_path(@itinerary, chat),
                     method: :delete,

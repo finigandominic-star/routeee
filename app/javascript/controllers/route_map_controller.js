@@ -32,7 +32,7 @@ export default class extends Controller {
         }
       }).addTo(this.map)
 
-      this.map.fitBounds(routeLayer.getBounds(), { padding: [10, 10] })
+      this.map.fitBounds(this.routeLayer.getBounds(), { padding: [10, 10] })
     } else {
       this.map.setView([51.4543, -0.9781], 13) // Reading fallback
     }

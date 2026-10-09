@@ -484,6 +484,7 @@ DEPENDENCIES
   debug
   devise
   dotenv-rails
+  faraday-retry
   font-awesome-sass (~> 6.1)
   httplog
   image_processing (~> 2.2)
