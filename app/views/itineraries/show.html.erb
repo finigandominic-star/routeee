@@ -6,8 +6,9 @@
     <%= link_to "← Back to Itineraries", itineraries_path, class: "btn btn-outline-secondary rounded-pill px-4 fw-semibold" %>
     <%= button_to "Delete Itinerary", itinerary_path(@itinerary),
     method: :delete,
-    class: "btn btn-outline-danger btn-sm w-100",
+    class: "btn btn-sm btn-outline-danger rounded-pill px-3",
     data: { turbo_confirm: "Are you sure you want to delete this route?" } %>
+
   </div>
 
   <div class="row mb-5 g-4">
@@ -74,7 +75,7 @@
   <!-- Header Section with Title and Button -->
   <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
     <h4 class="fw-bold mb-0 text-dark">Assistant Chats</h4>
-    <%= button_to "+ New Chat", itinerary_chats_path(@itinerary), class: "btn btn-primary rounded-pill px-4 fw-semibold shadow-sm", method: :post %>
+    <%= button_to "+ New Chat", itinerary_chats_path(@itinerary), class: "btn btn-outline-primary rounded-pill px-3 fw-semibold shadow-sm", method: :post %>
   </div>
 
   <!-- Bootstrap Accordion -->
@@ -97,9 +98,9 @@
               <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                 <!-- Renamed from 'Continue Chat' to 'Edit' while linking to existing chat -->
                 <% if @itinerary.chats.present? %>
-                  <%= link_to "Edit Route", chat_path(@itinerary.chats.last), class: "btn btn-primary" %>
+                  <%= link_to "Edit Route", chat_path(@itinerary.chats.last), class: "btn btn-primary rounded-pill px-3" %>
                   <% else %>
-                  <button class="btn btn-secondary" disabled>Chat Deleted</button>
+                    <button class="btn btn-secondary" disabled>Chat Deleted</button>
                 <% end %>
 
                 <%= button_to "Delete Chat", itinerary_chat_path(@itinerary, chat),
