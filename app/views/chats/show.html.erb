@@ -10,9 +10,8 @@
     class: "btn btn-outline-danger btn-sm w-100",
     data: { turbo_confirm: "Are you sure you want to delete this route?" } %>
       </div>
-
       <!-- 2. Map Container -->
-      <!-- Border: border-success ($green) -->
+
       <div id="chat-map"
            data-controller="route-map"
            data-route-map-geojson-value="<%= @chat.itinerary.geojson.to_json %>"
