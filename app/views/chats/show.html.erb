@@ -4,8 +4,7 @@
 
       <!-- Back Button -->
       <div class="mb-4">
-        <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm border text-body border-success" %>
-        <%= button_to "Delete Itinerary", itinerary_path(@chat.itinerary),
+        <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm border text-body border-success" %><%= button_to "Delete Itinerary", itinerary_path(@chat.itinerary),
     method: :delete,
     class: "btn btn-outline-danger btn-sm w-100",
     data: { turbo_confirm: "Are you sure you want to delete this route?" } %>
