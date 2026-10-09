@@ -3,15 +3,17 @@
     <div class="card-body p-4">
 
       <!-- Back Button -->
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm border text-body border-success" %><%= button_to "Delete Itinerary", itinerary_path(@chat.itinerary),
-    method: :delete,
-    class: "btn btn-outline-danger btn-sm w-100",
-    data: { turbo_confirm: "Are you sure you want to delete this route?" } %>
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+          <%= link_to "← Go to Itinerary", itinerary_path(@chat.itinerary), class: "btn btn-outline-secondary rounded-pill px-4 fw-semibold" %>
+          <%= button_to "Delete Chat", itinerary_path(@chat.itinerary),
+            method: :delete,
+            data: { turbo_confirm: "Are you sure you want to delete the planning for this trip?" },
+            class: "btn btn-sm btn-outline-danger rounded-pill px-3" %>
+        </div>
       </div>
 
       <!-- 2. Map Container -->
-      <!-- Border: border-success ($green) -->
       <div id="chat-map"
            data-controller="route-map"
            data-route-map-geojson-value="<%= @chat.itinerary.geojson.to_json %>"
@@ -29,7 +31,7 @@
                 <p class="created_at fst-italic small mb-1 opacity-75">
                   <%= message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
                 </p>
-                <%= simple_format(message.content) %>
+                <strong><%= message.role.capitalize %>:</strong> <%= simple_format(message.content) %>
               </div>
             </div>
           <% elsif message.role == "assistant" %>
@@ -38,7 +40,7 @@
                 <p class="created_at fst-italic small mb-1 opacity-75">
                   <%= message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
                 </p>
-                <%= simple_format(message.content) %>
+                 <strong><%= message.role.capitalize %>:</strong> <%= simple_format(message.content) %>
               </div>
             </div>
           <% end %>
@@ -48,16 +50,17 @@
       <!-- Input Form -->
       <div id="new_message_container" class="mt-4 pt-3 border-top border-success" style="border-top-width: 1px !important;">
         <%= simple_form_for [@chat, @message] do |f| %>
-          <div class="input-group">
+          <div class="d-flex align-items-baseline gap-2">
             <%= f.input :content,
+                        placeholder: "Where would you like to go for your bike trip?",
                         label: false,
                         required: true,
-                        placeholder: "How should I get started with the bike trip?",
-                        wrapper_html: { class: 'flex-grow-1' },
+                        autofocus: true,
+                        wrapper_html: {class: 'flex-grow-1 align-items-baseline', style: "height: 40px;" },
                         input_html: { class: 'form-control', style: "border-color: #A1CCA6;" } %>
 
-            <button type="submit" class="btn btn-primary rounded-end-3">
-              Ask LLM
+            <button type="submit" class="btn btn-primary flex-shrink-1 rounded-pill">
+              Ask Routeee
             </button>
           </div>
         <% end %>

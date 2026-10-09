@@ -113,7 +113,10 @@
                 <div class="d-flex flex-column gap-3">
                   <% chat.messages.each do |message| %>
                     <div class="p-3 rounded-4 shadow-sm <%= message.role == 'user' ? 'bg-primary text-white align-self-end' : 'bg-white border align-self-start' %>" style="max-width: 80%;">
-                      <strong><%= message.role.capitalize %>:</strong> <%= message.content %>
+                      <p class="created_at fst-italic small mb-1 opacity-75">
+                        <%= message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
+                      </p>
+                      <strong><%= message.role.capitalize %>:</strong> <%= simple_format(message.content) %>
                     </div>
                   <% end %>
                 </div>
