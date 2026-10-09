@@ -1,25 +1,90 @@
-<h2>Sign up</h2>
+<%# app/views/devise/sessions/new.html.erb %>
 
-<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= f.error_notification %>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh; background: linear-gradient(135deg, #e6f7f5 0%, #f4faf9 100%);">
+  <div class="card shadow-sm border-0 rounded-4" style="width: 100%; max-width: 400px;">
+    <div class="card-body p-5">
 
-  <div class="form-inputs">
-    <%= f.input :email,
-                required: true,
-                autofocus: true,
-                input_html: { autocomplete: "email" }%>
-    <%= f.input :password,
-                required: true,
-                hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length),
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :password_confirmation,
-                required: true,
-                input_html: { autocomplete: "new-password" } %>
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 56px; height: 56px; background: #e6f7f5;">
+          <i class="bi bi-signpost-split fs-4" style="color: var(--teal);"></i>
+        </div>
+        <p class="text-uppercase fw-bold small mb-1" style="letter-spacing: 0.08em; color: var(--teal);">Routeee</p>
+        <h1 class="h4 fw-bold text-body mb-1">Welcome back</h1>
+        <p class="text-muted small mb-0">Log in to plan your next ride</p>
+      </div>
+
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+        <div class="mb-3">
+          <%= f.label :email, class: "form-label fw-semibold small text-body" %>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0" style="color: var(--teal);">
+              <i class="bi bi-envelope"></i>
+            </span>
+            <%= f.email_field :email, autofocus: true, autocomplete: "email",
+                  class: "form-control border-start-0 ps-0", placeholder: "you@example.com" %>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :password, class: "form-label fw-semibold small text-body" %>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0" style="color: var(--teal);">
+              <i class="bi bi-lock"></i>
+            </span>
+            <%= f.password_field :password, autocomplete: "current-password",
+                  class: "form-control border-start-0 ps-0", placeholder: "••••••••" %>
+          </div>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <div class="form-check mb-4">
+            <%= f.check_box :remember_me, class: "form-check-input" %>
+            <%= f.label :remember_me, class: "form-check-label small text-muted" %>
+          </div>
+        <% end %>
+
+        <%= f.submit "Log in", class: "btn btn-teal w-100 rounded-pill fw-semibold py-2 shadow-sm" %>
+      <% end %>
+
+      <div class="text-center mt-4 pt-3 border-top">
+        <div class="small">
+          <%- if devise_mapping.registerable? && controller_name != 'registrations' %>
+            <%= link_to "Create an account", new_registration_path(resource_name), class: "text-decoration-none fw-semibold", style: "color: var(--teal);" %>
+            <span class="text-muted mx-1">·</span>
+          <% end -%>
+          <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+            <%= link_to "Forgot password?", new_password_path(resource_name), class: "text-decoration-none text-muted" %>
+          <% end -%>
+        </div>
+      </div>
+
+    </div>
   </div>
+</div>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Sign up" %>
-  </div>
-<% end %>
+<style>
+  :root {
+    --teal: #23CED9;
+    --teal-dark: #1AA8B2;
+  }
 
-<%= render "devise/shared/links" %>
+  .btn-teal {
+    background-color: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+  .btn-teal:hover, .btn-teal:focus {
+    background-color: var(--teal-dark);
+    border-color: var(--teal-dark);
+    color: #fff;
+  }
+
+  .form-control:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 0.2rem rgba(35, 206, 217, 0.15);
+  }
+  .input-group:focus-within .input-group-text {
+    border-color: var(--teal);
+  }
+</style>
