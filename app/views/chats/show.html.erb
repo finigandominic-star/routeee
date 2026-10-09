@@ -43,16 +43,17 @@
       <!-- Input Form -->
       <div id="new_message_container" class="mt-4 pt-3 border-top border-success" style="border-top-width: 1px !important;">
         <%= simple_form_for [@chat, @message] do |f| %>
-          <div class="input-group">
+          <div class="d-flex align-items-baseline gap-2">
             <%= f.input :content,
+                        placeholder: "Where would you like to go for your bike trip?",
                         label: false,
                         required: true,
-                        placeholder: "How should I get started with the bike trip?",
-                        wrapper_html: { class: 'flex-grow-1' },
+                        autofocus: true,
+                        wrapper_html: {class: 'flex-grow-1 align-items-baseline', style: "height: 40px;" },
                         input_html: { class: 'form-control', style: "border-color: #A1CCA6;" } %>
 
-            <button type="submit" class="btn btn-primary rounded-end-3">
-              Ask LLM
+            <button type="submit" class="btn btn-primary flex-shrink-1 rounded-3">
+              Ask Routeee
             </button>
           </div>
         <% end %>
