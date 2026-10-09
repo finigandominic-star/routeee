@@ -14,13 +14,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_191930) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
   create_table "chats", force: :cascade do |t|
     t.string "title"
     t.bigint "user_id", null: false
     t.bigint "itinerary_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "model_id"
     t.index ["itinerary_id"], name: "index_chats_on_itinerary_id"
+    t.index ["model_id"], name: "index_chats_on_model_id"
     t.index ["user_id"], name: "index_chats_on_user_id"
   end
 
@@ -44,7 +74,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_191930) do
     t.bigint "chat_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "model_id"
+    t.bigint "tool_call_id"
     t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["model_id"], name: "index_messages_on_model_id"
+    t.index ["tool_call_id"], name: "index_messages_on_tool_call_id"
+  end
+
+  create_table "models", force: :cascade do |t|
+    t.string "model_id", null: false
+    t.string "name", null: false
+    t.string "provider", null: false
+    t.string "family"
+    t.datetime "model_created_at"
+    t.integer "context_window"
+    t.integer "max_output_tokens"
+    t.date "knowledge_cutoff"
+    t.jsonb "modalities", default: {}
+    t.jsonb "capabilities", default: []
+    t.jsonb "pricing", default: {}
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["capabilities"], name: "index_models_on_capabilities", using: :gin
+    t.index ["family"], name: "index_models_on_family"
+    t.index ["modalities"], name: "index_models_on_modalities", using: :gin
+    t.index ["provider", "model_id"], name: "index_models_on_provider_and_model_id", unique: true
+    t.index ["provider"], name: "index_models_on_provider"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -217,6 +273,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_191930) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "tool_calls", force: :cascade do |t|
+    t.string "tool_call_id", null: false
+    t.string "name", null: false
+    t.text "thought_signature"
+    t.jsonb "arguments", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "message_id", null: false
+    t.index ["message_id"], name: "index_tool_calls_on_message_id"
+    t.index ["name"], name: "index_tool_calls_on_name"
+    t.index ["tool_call_id"], name: "index_tool_calls_on_tool_call_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -229,9 +298,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_191930) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "chats", "itineraries"
+  add_foreign_key "chats", "models"
   add_foreign_key "chats", "users"
   add_foreign_key "messages", "chats"
+  add_foreign_key "messages", "models"
+  add_foreign_key "messages", "tool_calls"
   add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
   add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -240,4 +314,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_191930) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "tool_calls", "messages"
 end

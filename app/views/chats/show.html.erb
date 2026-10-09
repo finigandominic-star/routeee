@@ -1,30 +1,24 @@
 <div class="container mt-4">
-  <!--
-    Card Background: bg-light (maps to $body-bg -> $light-gray)
-    Shadow & Rounded: Standard Bootstrap utilities
-  -->
   <div class="card shadow-sm border-0 rounded-4 bg-light">
-
     <div class="card-body p-4">
 
-      <!-- 1. Back Button -->
-      <!-- Text: text-body ($teal), Border: border-success ($green) -->
+      <!-- Back Button -->
       <div class="mb-4">
         <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm border text-body border-success" %>
       </div>
 
-      <!-- 2. Map Container -->
-      <!-- Border: border-success ($green) -->
-      <div data-controller="route-map" class="mb-4 shadow-sm rounded-3 border-success border-2" style="height: 350px; width: 100%; overflow: hidden;">
-        <div data-route-map-target="container" style="height: 100%; width: 100%;"></div>
+      <!-- Map Container with Navigable Leaflet Controller -->
+      <div
+        data-controller="route-map"
+        data-route-map-geojson-value="<%= @chat.itinerary.geojson.to_json if @chat.itinerary.geojson.present? %>"
+        class="mb-4 shadow-sm rounded-3 border-success border-2"
+        style="height: 350px; width: 100%; overflow: hidden;">
       </div>
 
-      <!-- 3. Messages Container -->
-      <!-- Scrollable area with max-height -->
+      <!-- Messages Container -->
       <div id="messages" class="mb-4 overflow-y-auto" style="max-height: 400px; padding-right: 5px;">
         <% @chat.messages.each do |message| %>
           <% if message.role == "user" %>
-            <!-- User Bubble: bg-primary ($mint) + text-white -->
             <div class="d-flex justify-content-end mb-3">
               <div class="px-3 pb-2 pt-3 rounded-3 shadow-sm bg-primary text-white" style="max-width: 80%;">
                 <p class="created_at fst-italic small mb-1 opacity-75">
@@ -34,7 +28,6 @@
               </div>
             </div>
           <% elsif message.role == "assistant" %>
-            <!-- Assistant Bubble: bg-white + text-body ($teal) + border-success ($green) -->
             <div class="d-flex justify-content-start mb-3">
               <div class="px-3 pb-2 pt-3 rounded-3 shadow-sm bg-white text-body border border-success" style="max-width: 80%;">
                 <p class="created_at fst-italic small mb-1 opacity-75">
@@ -47,8 +40,7 @@
         <% end %>
       </div>
 
-      <!-- 4. Input Form -->
-      <!-- Top Border: border-success ($green) -->
+      <!-- Input Form -->
       <div id="new_message_container" class="mt-4 pt-3 border-top border-success" style="border-top-width: 1px !important;">
         <%= simple_form_for [@chat, @message] do |f| %>
           <div class="input-group">
@@ -59,7 +51,6 @@
                         wrapper_html: { class: 'flex-grow-1' },
                         input_html: { class: 'form-control', style: "border-color: #A1CCA6;" } %>
 
-            <!-- Submit Button: btn-primary ($mint) -->
             <button type="submit" class="btn btn-primary rounded-end-3">
               Ask LLM
             </button>
