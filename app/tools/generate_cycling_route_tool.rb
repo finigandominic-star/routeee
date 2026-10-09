@@ -1,13 +1,13 @@
+# app/tools/generate_cycling_route_tool.rb
+
 class GenerateCyclingRouteTool < RubyLLM::Tool
   description "Map drawing tool. Call this to plot a NEW route. You MUST provide start_destination and end_destination. If the newest message is short, pull the locations from the conversation history. NEVER call with empty parameters."
 
   def execute(start_destination: nil, end_destination: nil, profile: "cycling-regular", **kwargs)
-    # These are the variables it was complaining were missing!
     actual_start = start_destination || kwargs["start_destination"] || kwargs[:start_city] || kwargs["start_city"]
     actual_end   = end_destination   || kwargs["end_destination"]   || kwargs[:end_city]   || kwargs["end_city"]
     actual_prof  = kwargs["profile"] || profile
 
-    # 🚨 LOG 1: See if the tool was triggered and what the LLM sent
     Rails.logger.info "\n🚀 TOOL TRIGGERED BY AI!"
     Rails.logger.info "   -> Start: #{actual_start}"
     Rails.logger.info "   -> End: #{actual_end}"
@@ -17,24 +17,37 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
       return { status: "error", message: "Missing locations." }
     end
 
-    # 1. Geocode the start location first
+    # 1. Geocode start location
     start_coords = geocode(actual_start)
 
-    # 2. Geocode the end location, passing the start_coords as a "focus point"
+    # 2. Geocode end location with focus point on start location
     end_coords = geocode(actual_end, focus_coords: start_coords)
 
-    # 🚨 LOG 2: See if the Geocoder failed
+    # Fallback retry if geocoding matched exact same point
+    if start_coords && end_coords && start_coords == end_coords
+      Rails.logger.warn "⚠️ Start and End resolved to identical coordinates! Retrying end location without boundary filter..."
+      end_coords = geocode(actual_end)
+    end
+
     Rails.logger.info "\n🌍 GEOCODER RESULTS:"
     Rails.logger.info "   -> #{actual_start} = #{start_coords.inspect}"
     Rails.logger.info "   -> #{actual_end} = #{end_coords.inspect}\n"
 
     return { status: "error", message: "Could not find coordinates for those locations" } unless start_coords && end_coords
 
+    if start_coords == end_coords
+      return { status: "error", message: "Start and end locations resolved to the exact same place." }
+    end
+
+    # 3. Call OpenRouteService API with 2000m snap radii
     conn = Faraday.new(url: "https://api.openrouteservice.org")
     response = conn.post("/v2/directions/#{actual_prof}/geojson") do |req|
       req.headers['Authorization'] = ENV['ORS_API_KEY']
       req.headers['Content-Type'] = 'application/json'
-      req.body = { coordinates: [start_coords, end_coords] }.to_json
+      req.body = {
+        coordinates: [start_coords, end_coords],
+        radii: [2000, 2000]
+      }.to_json
     end
 
     if response.success?
@@ -42,11 +55,9 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
 
       parsed_json = JSON.parse(response.body)
 
-      # Extract distance in meters and convert to miles
       distance_meters = parsed_json.dig("features", 0, "properties", "summary", "distance") || 0
       distance_miles = (distance_meters / 1609.34).round(1)
 
-      # 🚨 THE FIX: Send a full package of data through the tunnel using the correct variables
       Thread.current[:ors_route_data] = {
         geojson: parsed_json,
         distance: distance_miles,
@@ -72,10 +83,8 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
       req.params['size'] = 1
 
       if focus_coords
-        # 🌍 STRICT BOUNDARY: Force the API to only search within a 50km radius of the start point
-        req.params['boundary.circle.lon'] = focus_coords[0]
-        req.params['boundary.circle.lat'] = focus_coords[1]
-        req.params['boundary.circle.radius'] = 50
+        req.params['focus.point.lon'] = focus_coords[0]
+        req.params['focus.point.lat'] = focus_coords[1]
       end
     end
 
@@ -83,6 +92,7 @@ class GenerateCyclingRouteTool < RubyLLM::Tool
       data = JSON.parse(response.body)
       data.dig("features", 0, "geometry", "coordinates")
     else
+      Rails.logger.error "Geocoder failed for '#{city_name}': #{response.body}"
       nil
     end
   end

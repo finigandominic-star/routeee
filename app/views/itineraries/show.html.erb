@@ -6,7 +6,7 @@
     <%= link_to "← Back to Itineraries", itineraries_path, class: "btn btn-outline-secondary rounded-pill px-4 fw-semibold" %>
   </div>
 
-  <div class="row mb-5 g-4"> <!-- Added g-4 for better gutter spacing between columns -->
+  <div class="row mb-5 g-4">
 
     <!-- Left Column: Details -->
     <div class="col-12 col-md-5">
@@ -73,7 +73,7 @@
     <%= button_to "+ New Chat", itinerary_chats_path(@itinerary), class: "btn btn-primary rounded-pill px-4 fw-semibold shadow-sm", method: :post %>
   </div>
 
-  <!-- Bootstrap Accordion (Structure kept identical to your logic, just upgraded styling) -->
+  <!-- Bootstrap Accordion -->
   <div class="accordion shadow-sm rounded-4 overflow-hidden border-0" id="chatsAccordion">
 
     <% if @itinerary.chats.any? %>
@@ -91,7 +91,8 @@
 
               <!-- Chat Action Buttons -->
               <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                <%= link_to "Continue Chat", chat_path(chat), class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
+                <!-- Renamed from 'Continue Chat' to 'Edit' while linking to existing chat -->
+                <%= link_to "Edit", chat_path(chat), class: "btn btn-sm btn-outline-primary rounded-pill px-3" %>
 
                 <%= button_to "Delete Chat", itinerary_chat_path(@itinerary, chat),
                     method: :delete,
@@ -99,7 +100,7 @@
                     class: "btn btn-sm btn-outline-danger rounded-pill px-3" %>
               </div>
 
-              <!-- Chat Messages Preview (Basic styling as requested) -->
+              <!-- Chat Messages Preview -->
               <% if chat.messages.any? %>
                 <div class="d-flex flex-column gap-3">
                   <% chat.messages.each do |message| %>
@@ -109,7 +110,7 @@
                   <% end %>
                 </div>
               <% else %>
-                <p class="text-muted text-center mb-0 py-3">No messages yet. Click 'Continue Chat' to start.</p>
+                <p class="text-muted text-center mb-0 py-3">No messages yet. Click 'Edit' to start.</p>
               <% end %>
 
             </div>
@@ -118,7 +119,6 @@
       <% end %>
 
     <% else %>
-      <!-- Empty State -->
       <div class="alert alert-light text-center text-muted mb-0 py-5 rounded-4 shadow-sm border-0">
         <p class="mb-0 fw-semibold fs-5">No chats started yet.</p>
         <p class="small">Use the button above to begin planning this route.</p>

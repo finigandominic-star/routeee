@@ -5,43 +5,61 @@ export default class extends Controller {
   static values = { geojson: Object }
 
   connect() {
-    // 1. Initialize map on the exact DOM element this controller is attached to (No ID needed!)
-this.map = L.map(this.element, {
-      zoomControl: false,       // Hides the +/- buttons
-      scrollWheelZoom: false,   // Disables zooming with the mouse wheel
-      doubleClickZoom: false,   // Disables zooming by double-clicking
-      touchZoom: false,         // Disables pinch-to-zoom on mobile
-      boxZoom: false,           // Disables shift-drag zooming
-      keyboard: false,          // Disables keyboard navigation
-      dragging: false           // Disables panning/dragging the map around
+    // Determine container element (target or controller root)
+    const container = this.hasContainerTarget ? this.containerTarget : this.element
+
+    // 1. Initialize NAVIGABLE Leaflet map
+    this.map = L.map(container, {
+      zoomControl: true,       // Enable +/- zoom controls
+      scrollWheelZoom: true,  // Enable mouse wheel zoom
+      doubleClickZoom: true,  // Enable double click zoom
+      touchZoom: true,        // Enable touch zoom
+      boxZoom: true,          // Enable box drag zoom
+      keyboard: true,         // Enable keyboard navigation
+      dragging: true          // Enable map dragging/panning
     })
 
-    // 2. Add the OpenStreetMap tiles
+    // 2. Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap'
     }).addTo(this.map)
 
-    // 3. Draw the route if we have GeoJSON data
+    // 3. Render initial route
+    this.renderRoute()
+  }
+
+  // Automatically fires whenever data-route-map-geojson-value changes via Turbo Stream
+  geojsonValueChanged() {
+    if (this.map) {
+      this.renderRoute()
+    }
+  }
+
+  renderRoute() {
+    // Clear existing layer
+    if (this.routeLayer) {
+      this.map.removeLayer(this.routeLayer)
+    }
+
     if (this.hasGeojsonValue && Object.keys(this.geojsonValue).length > 0) {
-      const routeLayer = L.geoJSON(this.geojsonValue, {
+      this.routeLayer = L.geoJSON(this.geojsonValue, {
         style: {
-          color: '#0d6efd', // Bootstrap primary blue
+          color: '#0d6efd',
           weight: 4,
           opacity: 0.8
         }
       }).addTo(this.map)
 
-      // 4. Automatically zoom the map so the whole route fits nicely in the box
-      this.map.fitBounds(routeLayer.getBounds(), { padding: [10, 10] })
-
+      // Ensure map recalculates size and fits bounds to full route
+      this.map.invalidateSize()
+      this.map.fitBounds(this.routeLayer.getBounds(), { padding: [20, 20] })
     } else {
-      // Fallback view (Reading, UK) if something goes wrong
+      // Fallback center
       this.map.setView([51.4543, -0.9781], 13)
     }
   }
 
   disconnect() {
-    // Clean up the map when navigating away so it doesn't cause memory leaks
     if (this.map) {
       this.map.remove()
     }
