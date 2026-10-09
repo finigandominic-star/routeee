@@ -1,20 +1,127 @@
-<h2>Log in</h2>
+<%# app/views/devise/sessions/new.html.erb %>
 
-<%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="form-inputs">
-    <%= f.input :email,
-                required: false,
-                autofocus: true,
-                input_html: { autocomplete: "email" } %>
-    <%= f.input :password,
-                required: false,
-                input_html: { autocomplete: "current-password" } %>
-    <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div class="card border-0 rounded-4 routeee-shadow-tint" style="width: 100%; max-width: 400px;">
+    <div class="card-body p-5">
+
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-routeee-teal-light mb-3" style="width: 56px; height: 56px;">
+          <i class="bi bi-signpost-split fs-4 text-routeee-teal"></i>
+        </div>
+        <p class="text-uppercase fw-bold small text-routeee-teal mb-1" style="letter-spacing: 0.08em;">Routeee</p>
+        <h2 class="h4 fw-bold mb-1">Welcome back</h2>
+        <p class="text-muted small mb-0">Log in to plan your next ride</p>
+      </div>
+
+      <!-- Form -->
+      <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+        <div class="form-inputs">
+          <%= f.input :email,
+                      required: false,
+                      autofocus: true,
+                      label: "Email",
+                      input_html: {
+                        autocomplete: "email",
+                        placeholder: "you@example.com",
+                        class: "routeee-input"
+                      },
+                      wrapper_html: { class: "mb-3" } %>
+
+          <%= f.input :password,
+                      required: false,
+                      label: "Password",
+                      input_html: {
+                        autocomplete: "current-password",
+                        placeholder: "••••••••",
+                        class: "routeee-input"
+                      },
+                      wrapper_html: { class: "mb-3" } %>
+
+          <%= f.input :remember_me, as: :boolean,
+                      label: "Remember me",
+                      wrapper_html: { class: "mb-4" } if devise_mapping.rememberable? %>
+        </div>
+
+        <div class="form-actions mt-4">
+          <!-- OUTLINE BUTTON: MATCHES REGISTRATIONS AND PASSWORDS SUBMIT STYLE -->
+          <%= f.button :submit, "Log in", class: "btn btn-routeee-outline w-100 fw-semibold py-2 rounded-pill" %>
+        </div>
+      <% end %>
+
+      <!-- Links -->
+      <div class="text-center mt-4 pt-3 border-top shared-links-faro">
+        <div class="small">
+          <%= render "devise/shared/links" %>
+        </div>
+      </div>
+
+    </div>
   </div>
+</div>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Log in" %>
-  </div>
-<% end %>
+<style>
+  /* 1. DYNAMIC SHADOW USING --bs-link-color-rgb */
+  .routeee-shadow-tint {
+    box-shadow: 0 10px 30px rgba(var(--bs-link-color-rgb), 0.18) !important;
+  }
 
-<%= render "devise/shared/links" %>
+  /* 2. COLOR UTILITIES */
+  .bg-routeee-teal-light {
+    background-color: rgba(var(--bs-link-color-rgb), 0.1) !important;
+  }
+  .text-routeee-teal {
+    color: var(--bs-link-color) !important;
+  }
+
+  /* 3. OUTLINE BUTTON (NO FILL -> HOVER SOLID FILL & WHITE TEXT) */
+  .btn-routeee-outline {
+    background-color: transparent !important;
+    border: 2px solid var(--bs-link-color) !important;
+    color: var(--bs-link-color) !important;
+    transition: all 0.2s ease-in-out !important;
+  }
+  .btn-routeee-outline:hover,
+  .btn-routeee-outline:focus,
+  .btn-routeee-outline:active {
+    background-color: var(--bs-link-color) !important;
+    border-color: var(--bs-link-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(var(--bs-link-color-rgb), 0.25) !important;
+  }
+
+  /* 4. INPUT STYLING */
+  .routeee-input {
+    color: var(--bs-link-color) !important;
+    background-color: #ffffff !important;
+    border: 1px solid #dee2e6;
+  }
+  .routeee-input:focus {
+    color: var(--bs-link-color) !important;
+    background-color: #ffffff !important;
+    border-color: var(--bs-link-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-link-color-rgb), 0.2) !important;
+  }
+
+  /* Browser Autofill Fix */
+  .routeee-input:-webkit-autofill,
+  .routeee-input:-webkit-autofill:hover,
+  .routeee-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--bs-link-color) !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  }
+
+  /* 5. TEAL & UNDERLINED SHARED LINKS */
+  .shared-links-faro a {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--bs-link-color) !important;
+    text-decoration: underline !important;
+    font-weight: 500;
+  }
+  .shared-links-faro a:hover {
+    filter: brightness(0.85);
+    text-decoration: underline !important;
+  }
+</style>
