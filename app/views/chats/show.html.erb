@@ -4,7 +4,7 @@
 
       <!-- Back Button -->
       <div class="mb-4">
-        <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm border text-body border-success" %>
+        <%= link_to "← Back to Itinerary", itinerary_path(@chat.itinerary), class: "btn btn-outline-secondary rounded-pill px-4 fw-semibold" %>
       </div>
 
       <!-- Map Container with Navigable Leaflet Controller -->
@@ -24,7 +24,7 @@
                 <p class="created_at fst-italic small mb-1 opacity-75">
                   <%= message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
                 </p>
-                <%= simple_format(message.content) %>
+                <strong><%= message.role.capitalize %>:</strong> <%= simple_format(message.content) %>
               </div>
             </div>
           <% elsif message.role == "assistant" %>
@@ -33,7 +33,7 @@
                 <p class="created_at fst-italic small mb-1 opacity-75">
                   <%= message.created_at.strftime('%m/%d/%Y %H:%M %p') %>
                 </p>
-                <%= simple_format(message.content) %>
+                 <strong><%= message.role.capitalize %>:</strong> <%= simple_format(message.content) %>
               </div>
             </div>
           <% end %>
