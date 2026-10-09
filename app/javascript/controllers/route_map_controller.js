@@ -2,66 +2,73 @@ import { Controller } from "@hotwired/stimulus"
 import L from "leaflet"
 
 export default class extends Controller {
-  static values = { geojson: Object }
+  static values = {
+    geojson: Object,
+    interactive: { type: Boolean, default: true }
+  }
 
   connect() {
-    // Determine container element (target or controller root)
-    const container = this.hasContainerTarget ? this.containerTarget : this.element
+    // 1. Parse geojson safely if it arrived as an escaped string
+    let geojsonData = this.geojsonValue
+    if (typeof geojsonData === "string") {
+      try {
+        geojsonData = JSON.parse(geojsonData)
+      } catch (e) {
+        console.error("Failed to parse geojsonValue", e)
+        geojsonData = null
+      }
+    }
 
-    // 1. Initialize NAVIGABLE Leaflet map
-    this.map = L.map(container, {
-      zoomControl: true,       // Enable +/- zoom controls
-      scrollWheelZoom: true,  // Enable mouse wheel zoom
-      doubleClickZoom: true,  // Enable double click zoom
-      touchZoom: true,        // Enable touch zoom
-      boxZoom: true,          // Enable box drag zoom
-      keyboard: true,         // Enable keyboard navigation
-      dragging: true          // Enable map dragging/panning
+    // 2. Initialize Leaflet map on this container element
+    this.map = L.map(this.element, {
+      zoomControl: this.interactiveValue,
+      scrollWheelZoom: this.interactiveValue,
+      touchZoom: this.interactiveValue,
+      doubleClickZoom: this.interactiveValue,
+      dragging: this.interactiveValue,
+      boxZoom: this.interactiveValue,
+      keyboard: this.interactiveValue
     })
 
-    // 2. Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap'
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap"
     }).addTo(this.map)
 
-    // 3. Render initial route
-    this.renderRoute()
-  }
-
-  // Automatically fires whenever data-route-map-geojson-value changes via Turbo Stream
-  geojsonValueChanged() {
-    if (this.map) {
-      this.renderRoute()
-    }
-  }
-
-  renderRoute() {
-    // Clear existing layer
-    if (this.routeLayer) {
-      this.map.removeLayer(this.routeLayer)
-    }
-
-    if (this.hasGeojsonValue && Object.keys(this.geojsonValue).length > 0) {
-      this.routeLayer = L.geoJSON(this.geojsonValue, {
+    // 3. Render route layer and fix routeLayer reference error
+    if (geojsonData && (geojsonData.features || geojsonData.type)) {
+      const routeLayer = L.geoJSON(geojsonData, {
         style: {
-          color: '#0d6efd',
+          color: "#0d6efd",
           weight: 4,
           opacity: 0.8
         }
       }).addTo(this.map)
 
-      // Ensure map recalculates size and fits bounds to full route
-      this.map.invalidateSize()
-      this.map.fitBounds(this.routeLayer.getBounds(), { padding: [20, 20] })
+      this.routeLayer = routeLayer
+
+      const bounds = routeLayer.getBounds()
+      if (bounds.isValid()) {
+        this.map.fitBounds(bounds, { padding: [15, 15] })
+      }
     } else {
-      // Fallback center
-      this.map.setView([51.4543, -0.9781], 13)
+      this.map.setView([51.4543, -0.9781], 13) // Fallback coordinates
     }
+
+    // 4. Force Leaflet to recalculate dimensions once the DOM layout settles
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize()
+        if (this.routeLayer && this.routeLayer.getBounds().isValid()) {
+          this.map.fitBounds(this.routeLayer.getBounds(), { padding: [15, 15] })
+        }
+      }
+    }, 150)
   }
 
   disconnect() {
     if (this.map) {
       this.map.remove()
+      this.map = null
     }
   }
 }

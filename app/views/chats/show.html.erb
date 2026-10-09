@@ -3,16 +3,21 @@
     <div class="card-body p-4">
 
       <!-- Back Button -->
-      <div class="mb-4">
+      <div class="d-flex d-flex gap-2 mt-auto">
         <%= link_to "← Back", itinerary_path(@chat.itinerary), class: "btn btn-sm border text-body border-success" %>
+        <%= button_to "Delete Itinerary", itinerary_path(@chat.itinerary),
+    method: :delete,
+    class: "btn btn-outline-danger btn-sm w-100",
+    data: { turbo_confirm: "Are you sure you want to delete this route?" } %>
       </div>
+      <!-- 2. Map Container -->
 
-      <!-- Map Container with Navigable Leaflet Controller -->
-      <div
-        data-controller="route-map"
-        data-route-map-geojson-value="<%= @chat.itinerary.geojson.to_json if @chat.itinerary.geojson.present? %>"
-        class="mb-4 shadow-sm rounded-3 border-success border-2"
-        style="height: 350px; width: 100%; overflow: hidden;">
+      <div id="chat-map"
+           data-controller="route-map"
+           data-route-map-geojson-value="<%= @chat.itinerary.geojson.to_json %>"
+           class="mb-4 shadow-sm rounded-3 border-success border-2"
+           style="height: 350px; width: 100%; overflow: hidden;">
+        <div data-route-map-target="container" style="height: 100%; width: 100%;"></div>
       </div>
 
       <!-- Messages Container -->
